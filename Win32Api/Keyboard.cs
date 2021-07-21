@@ -5,12 +5,8 @@
         public enum WindowsVirtualKeyCodes
         {
             Tilde = 0xC0,
-            F = 0x46,
-            O = 0x4F,
-            P = 0x50,
             LeftBracket = 0xDB,
             RightBracket = 0xDD,
-            M = 0x4D,
             SemiColon = 0xBA,
             Quote = 0xDE,
         }
