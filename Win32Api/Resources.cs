@@ -7,11 +7,11 @@ namespace Win32Api
     {
         #region Unmanaged
         #region Imports
-        [DllImport("user32.dll")]
-        public static extern IntPtr LoadCursorA(IntPtr hInstance, int lpCursorName);
+        [DllImport("user32.dll", ExactSpelling = true)]
+        public static extern nint LoadCursorA(nint hInstance, int lpCursorName);
 
-        [DllImport("user32.dll")]
-        public static extern IntPtr LoadIconA(IntPtr hInstance, int lpIconName);
+        [DllImport("user32.dll", ExactSpelling = true)]
+        public static extern nint LoadIconA(nint hInstance, int lpIconName);
         #endregion
         #endregion
     }

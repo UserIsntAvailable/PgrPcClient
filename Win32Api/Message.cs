@@ -28,31 +28,32 @@ namespace Win32Api
 
         #region Ummnaged
         #region Imports
-        [DllImport("user32.dll")]
-        public static extern sbyte GetMessage(out MSG lpMsg, IntPtr hWnd, uint wMsgFilterMin, uint wMsgFilterMax);
+        [DllImport("user32.dll", ExactSpelling = true)]
+        public static extern sbyte GetMessage(out MSG lpMsg, nint hWnd, uint wMsgFilterMin, uint wMsgFilterMax);
 
-        [DllImport("user32.dll")]
-        public static extern IntPtr DispatchMessage(ref MSG lpmsg);
+        [DllImport("user32.dll", ExactSpelling = true)]
+        public static extern nint DispatchMessage(ref MSG lpmsg);
 
-        [DllImport("user32.dll")]
+        [DllImport("user32.dll", ExactSpelling = true)]
         public static extern bool TranslateMessage(ref MSG lpMsg);
 
-        [DllImport("user32.dll")]
+        [DllImport("user32.dll", ExactSpelling = true)]
         public static extern void PostQuitMessage(int nExitCode);
 
-        [DllImport("user32.dll")]
-        public static extern IntPtr SendMessage(IntPtr hWnd, uint message, IntPtr wParam, IntPtr lParam);
+        [DllImport("user32.dll", ExactSpelling = true)]
+        public static extern nint SendMessage(nint hWnd, uint message, nint wParam, nint lParam);
         #endregion
 
         #region Structures
         public struct MSG
         {
-            public IntPtr hwnd;
+            public nint hwnd;
             public uint message;
-            public IntPtr wParam;
-            public IntPtr lParam;
+            public nint wParam;
+            public nint lParam;
             public uint time;
             public POINT point;
+            public uint lPrivate;
         }
         #endregion
         #endregion

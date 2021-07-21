@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -8,13 +9,13 @@ namespace Win32Api
     public static class Window
     {
         #region Delegates
-        public delegate IntPtr WndProc(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
-        
-        public delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
+        public delegate nint WndProc(nint hWnd, uint msg, nint wParam, nint lParam);
+
+        public delegate bool EnumWindowsProc(nint hWnd, nint lParam);
         #endregion
-        
+
         #region Enums
-        public enum GetWindowLongConst
+        public enum GetWindowLong
         {
             GWL_WNDPROC = -4,
             GWL_HINSTANCE = -6,
@@ -24,9 +25,9 @@ namespace Win32Api
             GWL_USERDATA = -21,
             GWL_ID = -12,
         }
-        
+
         [Flags]
-        public enum WindowStylesConst : uint
+        public enum WindowStyles : uint
         {
             WS_BORDER = 0x00800000,
             WS_CAPTION = 0x00C00000,
@@ -60,33 +61,42 @@ namespace Win32Api
         #endregion
 
         #region Methods
-        /// <summary> Get the text for the window pointed to by hWnd </summary>
-        public static string GetWindowText(IntPtr hWnd)
+        /// <summary>
+        /// Get the text for the window pointed to by hWnd
+        /// </summary>
+        public static string GetWindowText(nint hWnd)
         {
             int size = GetWindowTextLength(hWnd);
 
             if(size > 0)
             {
-                var builder = new StringBuilder(size + 1);
-                GetWindowText(hWnd, builder, builder.Capacity);
+                var arrayPool = ArrayPool<char>.Shared;
 
-                return builder.ToString();
+                var sharedArray = arrayPool.Rent(size + 1);
+
+                GetWindowText(hWnd, sharedArray, size + 1);
+
+                var value = string.Concat(arrayPool);
+
+                arrayPool.Return(sharedArray);
+
+                return value;
             }
 
             return String.Empty;
         }
-        
+
         /// <summary> Find all windows that match the given filter </summary>
         /// <param name="filter"> A delegate that returns true for windows
         ///    that should be returned and false for windows that should
         ///    not be returned </param>
-        public static IEnumerable<IntPtr> FindWindows(EnumWindowsProc filter)
+        public static IEnumerable<nint> FindWindows(EnumWindowsProc filter)
         {
-            IntPtr found = IntPtr.Zero;
-            List<IntPtr> windows = new List<IntPtr>();
+            nint found = IntPtr.Zero;
+            var windows = new List<nint>();
 
             EnumWindows(
-                delegate(IntPtr wnd, IntPtr param)
+                delegate(nint wnd, nint param)
                 {
                     if(filter(wnd, param))
                     {
@@ -105,45 +115,40 @@ namespace Win32Api
 
         /// <summary> Find all windows that contain the given title text </summary>
         /// <param name="titleText"> The text that the window title must contain. </param>
-        public static IEnumerable<IntPtr> FindWindowsWithText(string titleText)
+        public static IEnumerable<nint> FindWindowsWithText(string titleText)
         {
-            return FindWindows(
-                delegate(IntPtr wnd, IntPtr param)
-                {
-                    return GetWindowText(wnd).Contains(titleText);
-                }
-            );
+            return FindWindows((wnd, param) => GetWindowText(wnd).Contains(titleText));
         }
         #endregion
-        
+
         #region Ummnaged
         #region Imports
-        [DllImport("user32.dll")]
-        public static extern IntPtr SetForegroundWindow(IntPtr hWnd);
-        
-        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
-        public static extern int GetWindowText(IntPtr hWnd, StringBuilder strText, int maxCount);
+        [DllImport("user32.dll", ExactSpelling = true)]
+        public static extern nint SetForegroundWindow(nint hWnd);
 
-        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
-        public static extern int GetWindowTextLength(IntPtr hWnd);
+        [DllImport("user32.dll", ExactSpelling = true, CharSet = CharSet.Unicode)]
+        public static extern int GetWindowText(nint hWnd, char[] strText, int maxCount);
 
-        [DllImport("user32.dll")]
-        public static extern bool EnumWindows(EnumWindowsProc enumProc, IntPtr lParam);
-        
-        [DllImport("user32.dll", SetLastError = true)]
-        public static extern short RegisterClassExA(ref WNDCLASSEX lpwcx);
+        [DllImport("user32.dll", ExactSpelling = true, CharSet = CharSet.Unicode)]
+        public static extern int GetWindowTextLength(nint hWnd);
 
-        [DllImport("user32.dll")]
-        public static extern int GetWindowLongA(IntPtr bShow, int nIndex);
+        [DllImport("user32.dll", ExactSpelling = true)]
+        public static extern bool EnumWindows(EnumWindowsProc enumProc, nint lParam);
 
-        [DllImport("user32.dll")]
-        public static extern int SetWindowLongA(IntPtr bShow, int nIndex, long dwNewLong);
+        [DllImport("user32.dll", ExactSpelling = true, SetLastError = true, CharSet = CharSet.Ansi)]
+        public static extern short RegisterClassEx(ref WNDCLASSEX lpwcx);
 
-        [DllImport("user32.dll")]
-        public static extern IntPtr DefWindowProc(IntPtr hWnd, uint uMsg, IntPtr wParam, IntPtr lParam);
+        [DllImport("user32.dll", ExactSpelling = true)]
+        public static extern int GetWindowLongA(nint bShow, int nIndex);
 
-        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-        public static extern IntPtr CreateWindowExW(
+        [DllImport("user32.dll", ExactSpelling = true)]
+        public static extern int SetWindowLongA(nint bShow, int nIndex, long dwNewLong);
+
+        [DllImport("user32.dll", ExactSpelling = true)]
+        public static extern nint DefWindowProc(nint hWnd, uint uMsg, nint wParam, nint lParam);
+
+        [DllImport("user32.dll", ExactSpelling = true, SetLastError = true, CharSet = CharSet.Unicode)]
+        public static extern nint CreateWindowEx(
             uint dwExStyle,
             string lpClassName,
             string lpWindowName,
@@ -152,13 +157,13 @@ namespace Win32Api
             int y,
             int nWidth,
             int nHeight,
-            IntPtr hWndParent,
-            IntPtr hMenu,
-            IntPtr hInstance,
-            IntPtr lpParam);
+            nint hWndParent,
+            nint hMenu,
+            nint hInstance,
+            nint lpParam);
 
-        [DllImport("user32.dll", SetLastError = true)]
-        public static extern bool SetLayeredWindowAttributes(IntPtr hwnd, uint crKey, byte bAlpha, uint dwFlags);
+        [DllImport("user32.dll", ExactSpelling = true, SetLastError = true)]
+        public static extern bool SetLayeredWindowAttributes(nint hwnd, uint crKey, byte bAlpha, uint dwFlags);
         #endregion
 
         #region Structures
@@ -171,13 +176,13 @@ namespace Win32Api
             public WndProc lpfnWndProc;
             public int cbClsExtra;
             public int cbWndExtra;
-            public IntPtr hInstance;
-            public IntPtr hIcon;
-            public IntPtr hCursor;
-            public IntPtr hbrBackground;
+            public nint hInstance;
+            public nint hIcon;
+            public nint hCursor;
+            public nint hbrBackground;
             public string lpszMenuName;
             public string lpszClassName;
-            public IntPtr hIconSm;
+            public nint hIconSm;
         }
         #endregion
         #endregion

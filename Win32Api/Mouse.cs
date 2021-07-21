@@ -15,10 +15,6 @@ namespace Win32Api
         [DllImport("user32.dll")]
         public static extern bool GetCursorPos(out Common.POINT p);
         #endregion
-
-        #region Structures
-        
-        #endregion
         #endregion
     }
 }
