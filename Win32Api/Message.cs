@@ -28,19 +28,19 @@ namespace Win32Api
 
         #region Ummnaged
         #region Imports
-        [DllImport("user32.dll", ExactSpelling = true)]
+        [DllImport("user32.dll")]
         public static extern sbyte GetMessage(out MSG lpMsg, nint hWnd, uint wMsgFilterMin, uint wMsgFilterMax);
 
-        [DllImport("user32.dll", ExactSpelling = true)]
+        [DllImport("user32.dll")]
         public static extern nint DispatchMessage(ref MSG lpmsg);
 
-        [DllImport("user32.dll", ExactSpelling = true)]
+        [DllImport("user32.dll")]
         public static extern bool TranslateMessage(ref MSG lpMsg);
 
-        [DllImport("user32.dll", ExactSpelling = true)]
+        [DllImport("user32.dll")]
         public static extern void PostQuitMessage(int nExitCode);
 
-        [DllImport("user32.dll", ExactSpelling = true)]
+        [DllImport("user32.dll")]
         public static extern nint SendMessage(nint hWnd, uint message, nint wParam, nint lParam);
         #endregion
 

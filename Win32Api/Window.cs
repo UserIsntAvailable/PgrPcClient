@@ -123,32 +123,32 @@ namespace Win32Api
 
         #region Ummnaged
         #region Imports
-        [DllImport("user32.dll", ExactSpelling = true)]
+        [DllImport("user32.dll")]
         public static extern nint SetForegroundWindow(nint hWnd);
 
-        [DllImport("user32.dll", ExactSpelling = true, CharSet = CharSet.Unicode)]
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
         public static extern int GetWindowText(nint hWnd, char[] strText, int maxCount);
 
-        [DllImport("user32.dll", ExactSpelling = true, CharSet = CharSet.Unicode)]
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
         public static extern int GetWindowTextLength(nint hWnd);
 
-        [DllImport("user32.dll", ExactSpelling = true)]
+        [DllImport("user32.dll")]
         public static extern bool EnumWindows(EnumWindowsProc enumProc, nint lParam);
 
-        [DllImport("user32.dll", ExactSpelling = true, SetLastError = true, CharSet = CharSet.Ansi)]
-        public static extern short RegisterClassEx(ref WNDCLASSEX lpwcx);
+        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Ansi)]
+        public static extern short RegisterClassExA(ref WNDCLASSEX lpwcx);
 
-        [DllImport("user32.dll", ExactSpelling = true)]
+        [DllImport("user32.dll")]
         public static extern int GetWindowLongA(nint bShow, int nIndex);
 
-        [DllImport("user32.dll", ExactSpelling = true)]
+        [DllImport("user32.dll")]
         public static extern int SetWindowLongA(nint bShow, int nIndex, long dwNewLong);
 
-        [DllImport("user32.dll", ExactSpelling = true)]
+        [DllImport("user32.dll")]
         public static extern nint DefWindowProc(nint hWnd, uint uMsg, nint wParam, nint lParam);
 
-        [DllImport("user32.dll", ExactSpelling = true, SetLastError = true, CharSet = CharSet.Unicode)]
-        public static extern nint CreateWindowEx(
+        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+        public static extern nint CreateWindowExW(
             uint dwExStyle,
             string lpClassName,
             string lpWindowName,
@@ -162,7 +162,7 @@ namespace Win32Api
             nint hInstance,
             nint lpParam);
 
-        [DllImport("user32.dll", ExactSpelling = true, SetLastError = true)]
+        [DllImport("user32.dll", SetLastError = true)]
         public static extern bool SetLayeredWindowAttributes(nint hwnd, uint crKey, byte bAlpha, uint dwFlags);
         #endregion
 

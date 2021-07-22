@@ -6,7 +6,7 @@ namespace Win32Api
     {
         #region Ummnaged
         #region Imports
-        [DllImport("Kernel32.dll", ExactSpelling = true)]
+        [DllImport("Kernel32.dll")]
         public static extern uint GetLastError();
         #endregion
         #endregion
