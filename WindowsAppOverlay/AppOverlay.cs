@@ -25,7 +25,7 @@ namespace WindowsAppOverlay
         {
             _overlayOfhWnd = overlayOfhWnd;
             
-            if(this.RegisterClass(appName) && this.CreateWindow(appName)) return;
+            if(RegisterClass(appName) && this.CreateWindow(appName)) return;
 
             // Something failed
             Console.WriteLine(GetLastError());
@@ -38,32 +38,6 @@ namespace WindowsAppOverlay
                 TranslateMessage(ref msg);
                 DispatchMessage(ref msg);
             }
-        }
-
-        private bool RegisterClass(string className)
-        {
-            const int defaultResourceName = 32512;
-
-            var wNdclass = new WNDCLASSEX
-            {
-                style = 0x8,
-                cbSize = (uint) Marshal.SizeOf<WNDCLASSEX>(),
-                lpfnWndProc = WndProcDelegate,
-                cbClsExtra = 0,
-                cbWndExtra = 0,
-                hIcon = LoadIconA(IntPtr.Zero, defaultResourceName),
-                hCursor = LoadCursorA(IntPtr.Zero, defaultResourceName),
-                hIconSm = IntPtr.Zero,
-                hbrBackground = new IntPtr(6),
-                lpszMenuName = null,
-                lpszClassName = className,
-            };
-
-            if(RegisterClassExA(ref wNdclass) != 0) return true;
-
-            Console.WriteLine($"Register Failed: ({GetLastError()})");
-
-            return false;
         }
 
         private bool CreateWindow(string className)
@@ -87,6 +61,32 @@ namespace WindowsAppOverlay
             SetLayeredWindowAttributes(_hWnd, 0, 25, 0x00000002);
 
             return _hWnd != IntPtr.Zero;
+        }
+        
+        private static bool RegisterClass(string className)
+        {
+            const int defaultResourceName = 32512;
+
+            var wNdclass = new WNDCLASSEX
+            {
+                style = 0x8,
+                cbSize = (uint) Marshal.SizeOf<WNDCLASSEX>(),
+                lpfnWndProc = WndProcDelegate,
+                cbClsExtra = 0,
+                cbWndExtra = 0,
+                hIcon = LoadIconA(IntPtr.Zero, defaultResourceName),
+                hCursor = LoadCursorA(IntPtr.Zero, defaultResourceName),
+                hIconSm = IntPtr.Zero,
+                hbrBackground = new IntPtr(6),
+                lpszMenuName = null,
+                lpszClassName = className,
+            };
+
+            if(RegisterClassExA(ref wNdclass) != 0) return true;
+
+            Console.WriteLine($"Register Failed: ({GetLastError()})");
+
+            return false;
         }
         
         private static nint WndProc(nint hWnd, uint message, nint wParam, nint lParam)
