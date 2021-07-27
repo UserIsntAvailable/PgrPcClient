@@ -13,18 +13,11 @@ namespace WindowsAppOverlay
         /// This app handler pointer
         /// </summary>
         private nint _hWnd;
-        /// <summary>
-        /// The app handler pointer that this app is overlaying
-        /// </summary>
-        private nint _overlayOfhWnd; // TODO - Implement InputHandler
-        private bool _isMouseActive = true; // TODO - Implement InputHandler
 
         private static readonly WndProc WndProcDelegate = WndProc;
         
-        public AppOverlay(nint overlayOfhWnd, string appName = "")
+        public AppOverlay(string appName = "")
         {
-            _overlayOfhWnd = overlayOfhWnd;
-            
             if(RegisterClass(appName) && this.CreateWindow(appName)) return;
 
             // Something failed
