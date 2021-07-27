@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Win32Api", "Win32Api\Win32A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsAppOverlay", "WindowsAppOverlay\WindowsAppOverlay.csproj", "{90E4C6CA-F321-4F87-9038-8F56ECBEDD6A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsAppOverlay.Unit.Tests", "WindowsAppOverlay.Unit.Tests\WindowsAppOverlay.Unit.Tests.csproj", "{9DD13EFE-B2E3-4DC3-8EB4-4C6142D024A9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{90E4C6CA-F321-4F87-9038-8F56ECBEDD6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{90E4C6CA-F321-4F87-9038-8F56ECBEDD6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{90E4C6CA-F321-4F87-9038-8F56ECBEDD6A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9DD13EFE-B2E3-4DC3-8EB4-4C6142D024A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9DD13EFE-B2E3-4DC3-8EB4-4C6142D024A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9DD13EFE-B2E3-4DC3-8EB4-4C6142D024A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9DD13EFE-B2E3-4DC3-8EB4-4C6142D024A9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -14,16 +14,23 @@ namespace WindowsAppOverlay
         /// </summary>
         private nint _hWnd;
 
+        private static IMessageHandler _messageHandler = new MessageHandler();
+
         private static readonly WndProc WndProcDelegate = WndProc;
-        
-        public AppOverlay(string appName = "")
+
+        public AppOverlay(IMessageHandler messageHandler = null, string appName = "")
         {
+            if(messageHandler != null)
+            {
+                _messageHandler = messageHandler;
+            }
+
             if(RegisterClass(appName) && this.CreateWindow(appName)) return;
 
             // Something failed
             Console.WriteLine(GetLastError());
         }
-        
+
         public void Run()
         {
             while(GetMessage(out var msg, IntPtr.Zero, 0, 0) > 0)
@@ -55,7 +62,7 @@ namespace WindowsAppOverlay
 
             return _hWnd != IntPtr.Zero;
         }
-        
+
         private static bool RegisterClass(string className)
         {
             const int defaultResourceName = 32512;
@@ -81,22 +88,12 @@ namespace WindowsAppOverlay
 
             return false;
         }
-        
+
         private static nint WndProc(nint hWnd, uint message, nint wParam, nint lParam)
         {
-            switch(message)
-            {
-                case(uint) WindowsMessage.WM_DESTROY:
-                {
-                    PostQuitMessage(0);
-
-                    return 0;
-                }
-                default:
-                {
-                    return DefWindowProc(hWnd, message, wParam, lParam);
-                }
-            }
+            return _messageHandler.TryGetMessageDelegate(message, out var handleMessage)
+                ? handleMessage(hWnd, wParam, lParam)
+                : DefWindowProc(hWnd, message, wParam, lParam);
         }
     }
 }
