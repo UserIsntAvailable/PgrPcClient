@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace WindowsAppOverlay
+﻿namespace WindowsAppOverlay
 {
     public interface IMessageHandler
     {

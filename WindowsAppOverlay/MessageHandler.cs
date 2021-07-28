@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using static Win32Api.Message;
 
@@ -8,7 +7,9 @@ namespace WindowsAppOverlay
     public class MessageHandler : IMessageHandler
     {
         public delegate nint HandleMessage(nint hWnd, nint wParam, nint lParam);
-
+        
+        // TODO - Create constructor that accepts an IConfiguration
+        
         private readonly ReadOnlyDictionary<uint, HandleMessage> _messageHooks;
 
         public MessageHandler()
@@ -26,10 +27,12 @@ namespace WindowsAppOverlay
             if(_messageHooks.TryGetValue(message, out var handleMessage))
             {
                 @delegate = handleMessage;
+
                 return true;
             }
-            
+
             @delegate = null;
+
             return false;
         }
 

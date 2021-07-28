@@ -28,4 +28,10 @@
       <ProjectReference Include="..\WindowsAppOverlay\WindowsAppOverlay.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="appsettings.tests.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>
