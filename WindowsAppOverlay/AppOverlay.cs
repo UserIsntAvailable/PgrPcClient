@@ -47,7 +47,7 @@ namespace WindowsAppOverlay
                 0x00080000,
                 className,
                 null,
-                (uint) (WindowStyles.WS_VISIBLE | WindowStyles.WS_MAXIMIZE | WindowStyles.WS_POPUP),
+                (uint) (WS.VISIBLE | WS.MAXIMIZE | WS.POPUP),
                 useDefault,
                 useDefault,
                 useDefault,

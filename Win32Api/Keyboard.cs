@@ -1,14 +1,20 @@
-﻿namespace Win32Api
+﻿// ReSharper disable InconsistentNaming
+// ReSharper disable IdentifierTypo
+namespace Win32Api
 {
     public static class Keyboard
     {
-        public enum WindowsVirtualKeyCodes
+        // I'm not including all of them
+        public enum VK : byte
         {
-            Tilde = 0xC0,
-            LeftBracket = 0xDB,
-            RightBracket = 0xDD,
-            SemiColon = 0xBA,
-            Quote = 0xDE,
+            LBUTTON = 0x01,
+            RBUTTON = 0x02,
+            MBUTTON = 0x04,
+            XBUTTON1 = 0x05,
+            XBUTTON2 = 0x06,
+            
+            // TODO - Add the extra Virtual Keys
+            Key_0 = 0x30,
         }
 
         public enum KeyScanCode : ushort

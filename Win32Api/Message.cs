@@ -2,27 +2,30 @@
 using static Win32Api.Common;
 using System.Runtime.InteropServices;
 
+// ReSharper disable InconsistentNaming
+// ReSharper disable IdentifierTypo
+
 namespace Win32Api
 {
     public static class Message
     {
         #region Enums
-        public enum WindowsMessage : uint
+        public enum VM : uint
         {
-            WM_CREATE = 0x0001,
-            WM_DESTROY = 0x0002,
-            WM_PAINT = 0x000F,
-            WM_KEYDOWN = 0x0100,
-            WM_KEYUP = 0x0101,
-            WM_LBUTTONDOWN = 0x0201,
-            WM_LBUTTONUP = 0x0202,
-            WM_RBUTTONDOWN = 0x0204,
-            WM_RBUTTONUP = 0x0205,
-            WM_MBUTTONDOWN = 0x0207,
-            WM_MBUTTONUP = 0x0208,
-            WM_MOUSEWHEEL = 0x020a,
-            WM_XBUTTONDOWN = 0x020b,
-            WM_XBUTTONUP = 0x020c,
+            CREATE = 0x0001,
+            DESTROY = 0x0002,
+            PAINT = 0x000F,
+            KEYDOWN = 0x0100,
+            KEYUP = 0x0101,
+            LBUTTONDOWN = 0x0201,
+            LBUTTONUP = 0x0202,
+            RBUTTONDOWN = 0x0204,
+            RBUTTONUP = 0x0205,
+            MBUTTONDOWN = 0x0207,
+            MBUTTONUP = 0x0208,
+            MOUSEWHEEL = 0x020A,
+            XBUTTONDOWN = 0x020B,
+            XBUTTONUP = 0x020C,
         }
         #endregion
 

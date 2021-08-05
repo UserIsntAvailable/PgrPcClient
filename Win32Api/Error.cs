@@ -2,7 +2,7 @@
 
 namespace Win32Api
 {
-    public class Error
+    public static class Error
     {
         #region Ummnaged
         #region Imports

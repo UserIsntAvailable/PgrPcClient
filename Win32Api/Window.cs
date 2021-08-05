@@ -3,6 +3,8 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
+// ReSharper disable InconsistentNaming
+// ReSharper disable IdentifierTypo
 
 namespace Win32Api
 {
@@ -15,48 +17,47 @@ namespace Win32Api
         #endregion
 
         #region Enums
-        public enum GetWindowLong
+        public enum GWL
         {
-            GWL_WNDPROC = -4,
-            GWL_HINSTANCE = -6,
-            GWL_HWNDPARENT = -8,
-            GWL_STYLE = -16,
-            GWL_EXSTYLE = -20,
-            GWL_USERDATA = -21,
-            GWL_ID = -12,
+            WNDPROC = -4,
+            HINSTANCE = -6,
+            HWNDPARENT = -8,
+            STYLE = -16,
+            EXSTYLE = -20,
+            USERDATA = -21,
+            ID = -12,
         }
 
         [Flags]
-        public enum WindowStyles : uint
+        public enum WS : uint
         {
-            WS_BORDER = 0x00800000,
-            WS_CAPTION = 0x00C00000,
-            WS_CHILD = 0x40000000,
-            WS_CHILDWINDOW = 0x40000000,
-            WS_CLIPCHILDREN = 0x02000000,
-            WS_CLIPSIBLINGS = 0x04000000,
-            WS_DISABLED = 0x08000000,
-            WS_DLGFRAME = 0x00400000,
-            WS_GROUP = 0x00020000,
-            WS_HSCROLL = 0x00100000,
-            WS_ICONIC = 0x20000000,
-            WS_MAXIMIZE = 0x01000000,
-            WS_MAXIMIZEBOX = 0x00010000,
-            WS_MINIMIZE = 0x20000000,
-            WS_MINIMIZEBOX = 0x00020000,
-            WS_OVERLAPPED = 0x00000000,
-            WS_OVERLAPPEDWINDOW = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX |
-                                  WS_MAXIMIZEBOX,
-            WS_POPUP = 0x80000000,
-            WS_POPUPWINDOW = WS_POPUP | WS_BORDER | WS_SYSMENU,
-            WS_SIZEBOX = 0x00040000,
-            WS_SYSMENU = 0x00080000,
-            WS_TABSTOP = 0x00010000,
-            WS_THICKFRAME = 0x00040000,
-            WS_TILED = 0x00000000,
-            WS_TILEDWINDOW = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX,
-            WS_VISIBLE = 0x10000000,
-            WS_VSCROLL = 0x00200000,
+            BORDER = 0x00800000,
+            CAPTION = 0x00C00000,
+            CHILD = 0x40000000,
+            CHILDWINDOW = 0x40000000,
+            CLIPCHILDREN = 0x02000000,
+            CLIPSIBLINGS = 0x04000000,
+            DISABLED = 0x08000000,
+            DLGFRAME = 0x00400000,
+            GROUP = 0x00020000,
+            HSCROLL = 0x00100000,
+            ICONIC = 0x20000000,
+            MAXIMIZE = 0x01000000,
+            MAXIMIZEBOX = 0x00010000,
+            MINIMIZE = 0x20000000,
+            MINIMIZEBOX = 0x00020000,
+            OVERLAPPED = 0x00000000,
+            OVERLAPPEDWINDOW = OVERLAPPED | CAPTION | SYSMENU | THICKFRAME | MINIMIZEBOX | MAXIMIZEBOX,
+            POPUP = 0x80000000,
+            POPUPWINDOW = POPUP | BORDER | SYSMENU,
+            SIZEBOX = 0x00040000,
+            SYSMENU = 0x00080000,
+            TABSTOP = 0x00010000,
+            THICKFRAME = 0x00040000,
+            TILED = 0x00000000,
+            TILEDWINDOW = OVERLAPPED | CAPTION | SYSMENU | THICKFRAME | MINIMIZEBOX | MAXIMIZEBOX,
+            VISIBLE = 0x10000000,
+            VSCROLL = 0x00200000,
         }
         #endregion
 
