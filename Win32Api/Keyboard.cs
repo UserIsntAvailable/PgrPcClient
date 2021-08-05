@@ -1,11 +1,14 @@
 ﻿// ReSharper disable InconsistentNaming
 // ReSharper disable IdentifierTypo
+
+using System.Runtime.InteropServices;
+
 namespace Win32Api
 {
     public static class Keyboard
     {
-        // I'm not including all of them
-        public enum VK : byte
+        #region Enums
+        public enum VK : uint
         {
             LBUTTON = 0x01,
             RBUTTON = 0x02,
@@ -16,17 +19,16 @@ namespace Win32Api
             // TODO - Add the extra Virtual Keys
             Key_0 = 0x30,
         }
+        #endregion
 
-        public enum KeyScanCode : ushort
-        {
-            O = 0x18,
-            P = 0x19,
-            F = 0x21,
-            LeftBracket = 0x1A,
-            RightBracket = 0x1B,
-            M = 0x32,
-            SemiColon = 0x27,
-            Quote = 0x28,
-        }
+        #region Ummnaged
+        #region Imports
+        [DllImport("user32.dll")]
+        public static extern nint MapVirtualKeyExA(uint uCode, uint uMapType, nint dwnkl);
+        
+        [DllImport("user32.dll")]
+        public static extern nint GetKeyboardLayout(ulong idThread);
+        #endregion
+        #endregion
     }
 }
