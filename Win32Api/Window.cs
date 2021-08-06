@@ -77,7 +77,7 @@ namespace Win32Api
 
                 GetWindowText(hWnd, sharedArray, size + 1);
 
-                var value = string.Concat(arrayPool);
+                var value = string.Concat(sharedArray);
 
                 arrayPool.Return(sharedArray);
 
