@@ -1,6 +1,5 @@
-﻿using System;
+﻿using System.Runtime.InteropServices;
 using static Win32Api.Common;
-using System.Runtime.InteropServices;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable IdentifierTypo
@@ -19,8 +18,10 @@ namespace Win32Api
             KEYUP = 0x0101,
             LBUTTONDOWN = 0x0201,
             LBUTTONUP = 0x0202,
+            LBUTTONDBLCLK = 0x0203,
             RBUTTONDOWN = 0x0204,
             RBUTTONUP = 0x0205,
+            RBUTTONDBLCLK = 0x0206,
             MBUTTONDOWN = 0x0207,
             MBUTTONUP = 0x0208,
             MOUSEWHEEL = 0x020A,
