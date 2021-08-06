@@ -15,6 +15,8 @@ namespace Win32Api
             MBUTTON = 0x04,
             XBUTTON1 = 0x05,
             XBUTTON2 = 0x06,
+            
+            SPACE = 0x20,
 
             Key_0 = 0x30,
             Key_1 = 0x31,
