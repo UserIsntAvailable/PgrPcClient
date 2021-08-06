@@ -4,6 +4,6 @@ namespace Win32Api
 {
     public static class Macros
     {
-        public static nint HIWORD(nint value) => value >> 16;
+        public static ushort HIWORD(nint value) => (ushort)(value >> 16);
     }
 }
