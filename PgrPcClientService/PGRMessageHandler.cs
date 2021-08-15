@@ -8,6 +8,7 @@ using static Win32Api.Message;
 using static Win32Api.Keyboard;
 using static Win32Api.Macros;
 
+// ReSharper disable CommentTypo
 // ReSharper disable InconsistentNaming
 // ReSharper disable IdentifierTypo
 
@@ -63,7 +64,7 @@ namespace PgrPcClientService
                 {(uint) VM.KEYUP, this.OnKeyReleased},
                 {(uint) VM.LBUTTONDOWN, this.OnLMButtonPressed},
                 {(uint) VM.LBUTTONUP, this.OnLMButtonReleased},
-                // TODO - I should get around this better.
+                // TODO - LBUTTONDBLCLK/RBUTTONDBLCLK events are problematic
                 {(uint) VM.LBUTTONDBLCLK, this.OnLMButtonPressed},
                 {(uint) VM.RBUTTONDBLCLK, this.OnRMButtonPressed},
                 //
@@ -91,7 +92,7 @@ namespace PgrPcClientService
             return false;
         }
 
-        // TODO - Move this to its own class
+        // TODO - Move HandleMessage Delegates to a separate class
 
         #region HandleMessage Delegates
         private nint OnKeyPressed(nint hWnd, nint wParam, nint lParam) => this.KeyMessage(VM.KEYDOWN, wParam, lParam);
