@@ -9,21 +9,17 @@ namespace WindowsAppOverlay
 {
     public class AppOverlay
     {
+        private static IMessageHandler _messageHandler;
+
+        private static readonly WndProc WndProcDelegate = WndProc;
         /// <summary>
-        /// This app handler pointer
+        ///     This app handler pointer
         /// </summary>
         private nint _hWnd;
 
-        private static IMessageHandler _messageHandler = new MessageHandler();
-
-        private static readonly WndProc WndProcDelegate = WndProc;
-
-        public AppOverlay(IMessageHandler messageHandler = null, string appName = "")
+        public AppOverlay(IMessageHandler messageHandler, string appName)
         {
-            if(messageHandler != null)
-            {
-                _messageHandler = messageHandler;
-            }
+            _messageHandler = messageHandler;
 
             if(RegisterClass(appName) && this.CreateWindow(appName)) return;
 
@@ -89,11 +85,9 @@ namespace WindowsAppOverlay
             return false;
         }
 
-        private static nint WndProc(nint hWnd, uint message, nint wParam, nint lParam)
-        {
-            return _messageHandler.TryGetMessageDelegate(message, out var handleMessage)
+        private static nint WndProc(nint hWnd, uint message, nint wParam, nint lParam) =>
+            _messageHandler.TryGetMessageDelegate(message, out var handleMessage)
                 ? handleMessage(hWnd, wParam, lParam)
                 : DefWindowProc(hWnd, message, wParam, lParam);
-        }
     }
 }
