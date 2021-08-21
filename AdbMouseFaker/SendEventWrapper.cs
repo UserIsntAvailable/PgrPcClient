@@ -16,9 +16,9 @@ namespace AdbMouseFaker
             _device = _client.ConnectToDevice(deviceName, endPoint);
         }
 
-        public void Send(int type, int code, int value)
+        public void Send(string deviceSource, int type, int code, int value)
         {
-            _client.ExecuteRemoteCommand($"sendevent {type} {code} {value}", _device, _outputReceiver);
+            _client.ExecuteRemoteCommand($"sendevent {deviceSource} {type} {code} {value}", _device, _outputReceiver);
         }
     }
 }
