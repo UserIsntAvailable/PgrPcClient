@@ -2,7 +2,7 @@
 
 namespace AdbMouseFaker
 {
-    public class MouseFaker
+    public class MouseFaker : IMouseFaker
     {
         private const int EV_SYN = 0x00,
                           EV_KEY = 0x01,
@@ -15,8 +15,8 @@ namespace AdbMouseFaker
                           DEFAULT_TRACKING_ID = 1,
                           RELEASE_TRACKING_ID = -1;
         private readonly string _deviceMouseInput;
-        private readonly IMouseInfoProvider _mouseInfoProvider;
 
+        private readonly IMouseInfoProvider _mouseInfoProvider;
         private readonly ISendEventWrapper _sendEventWrapper;
         private readonly ManualResetEvent _suspendEvent = new(false);
 
@@ -31,7 +31,7 @@ namespace AdbMouseFaker
             _mouseInfoProvider = mouseInfoProvider;
             _deviceMouseInput = deviceMouseInput;
 
-            this.ConfigureCameraModeThread();
+            this.CreateCameraModeThread();
         }
 
         public bool IsCameraModeOn
@@ -60,7 +60,7 @@ namespace AdbMouseFaker
             }
         }
 
-        private void ConfigureCameraModeThread()
+        private void CreateCameraModeThread()
         {
             new Thread(
                 () =>
