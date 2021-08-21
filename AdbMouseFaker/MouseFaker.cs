@@ -39,18 +39,24 @@ namespace AdbMouseFaker
             get => _isCameraModeOn;
             set
             {
-                _isCameraModeOn = value;
-
-                if(_isCameraModeOn)
+                if(value)
                 {
-                    this.ClickMouse();
-                    _suspendEvent.Set();
+                    if(!_isCameraModeOn)
+                    {
+                        this.ClickMouse();
+                        _suspendEvent.Set();
+                    }
                 }
                 else
                 {
-                    _suspendEvent.Reset();
-                    this.ReleaseMouse();
+                    if(_isCameraModeOn)
+                    {
+                        _suspendEvent.Reset();
+                        this.ReleaseMouse();
+                    }
                 }
+
+                _isCameraModeOn = value;
             }
         }
 
