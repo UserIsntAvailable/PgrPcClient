@@ -28,6 +28,9 @@ namespace PgrPcClientService
         private readonly ReadOnlyDictionary<uint, MessageHandler.HandleMessage> _messageHooks;
 
         private readonly IMouseFaker _mouseFaker;
+        private readonly int _screenHeight = GetSystemMetrics(1);
+
+        private readonly int _screenWidth = GetSystemMetrics(0);
 
         /*
          * TODO - Simplify the appsettings.json parsing ( I can use MapVirtualKeyExA to 'cast' char to vk )
@@ -66,6 +69,7 @@ namespace PgrPcClientService
                 },
                 {(uint) VM.KEYDOWN, this.OnKeyPressed},
                 {(uint) VM.KEYUP, this.OnKeyReleased},
+                {(uint) VM.MOUSEMOVE, this.OnMouseMove},
                 {(uint) VM.LBUTTONDOWN, this.OnLMButtonPressed},
                 {(uint) VM.LBUTTONUP, this.OnLMButtonReleased},
                 // TODO - LBUTTONDBLCLK/RBUTTONDBLCLK events are problematic
@@ -106,7 +110,7 @@ namespace PgrPcClientService
                 case(int) VK.Key_R:
                 {
                     ShowCursor(_mouseFaker.IsCameraModeOn);
-                    SetCursorPos(GetSystemMetrics(0) / 2, GetSystemMetrics(1) / 2);
+                    SetCursorPos(_screenWidth / 2, _screenHeight / 2);
                     _mouseFaker.IsCameraModeOn = !_mouseFaker.IsCameraModeOn;
 
                     return 0;
@@ -116,17 +120,31 @@ namespace PgrPcClientService
             }
         }
 
-        private nint OnRMButtonPressed(nint hWnd, nint wParam, nint lParam) =>
-            this.FakeVirtualKeyMessage(0x01, VM.KEYDOWN);
+        private nint OnMouseMove(nint hwnd, nint wparam, nint lparam)
+        {
+            const int PADDING = 1;
 
-        private nint OnRMButtonReleased(nint hWnd, nint wParam, nint lParam) =>
-            this.FakeVirtualKeyMessage(0x01, VM.KEYUP);
+            var xPos = GET_X_LPARAM((int) lparam);
+            var yPos = GET_Y_LPARAM((int) lparam);
+
+            if(xPos == _screenWidth - PADDING)
+                SetCursorPos(PADDING, yPos);
+            else if(xPos == 0) SetCursorPos(_screenWidth - PADDING - 1, yPos);
+
+            return 0;
+        }
 
         private nint OnLMButtonPressed(nint hWnd, nint wParam, nint lParam) =>
             this.FakeVirtualKeyMessage(0x02, VM.KEYDOWN);
 
         private nint OnLMButtonReleased(nint hWnd, nint wParam, nint lParam) =>
             this.FakeVirtualKeyMessage(0x02, VM.KEYUP);
+
+        private nint OnRMButtonPressed(nint hWnd, nint wParam, nint lParam) =>
+            this.FakeVirtualKeyMessage(0x01, VM.KEYDOWN);
+
+        private nint OnRMButtonReleased(nint hWnd, nint wParam, nint lParam) =>
+            this.FakeVirtualKeyMessage(0x01, VM.KEYUP);
 
         private nint OnXMButtonPressed(nint hWnd, nint wParam, nint lParam)
         {

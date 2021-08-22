@@ -19,9 +19,9 @@ while(true)
     {
         var config = ParseConfig(pgrHandle);
 
-        var deviceName = config["DeviceName"];
         var host = config["DeviceHost"];
         var port = int.Parse(config["DevicePort"]);
+        var deviceName = $"{host}:{port}";
         var deviceInput = config["DeviceInput"];
 
         DnsEndPoint endPoint = new(host, port);
