@@ -143,17 +143,17 @@ namespace PgrPcClientService
                 return 0;
             }
 
-            return this.FakeVirtualKeyMessage(0x02, VM.KEYDOWN);
+            return this.FakeVirtualKeyMessage((int) VK.LBUTTON, VM.KEYDOWN);
         }
 
         private nint OnLMButtonReleased(nint hWnd, nint wParam, nint lParam) =>
-            this.FakeVirtualKeyMessage(0x02, VM.KEYUP);
+            this.FakeVirtualKeyMessage((int) VK.LBUTTON, VM.KEYUP);
 
         private nint OnRMButtonPressed(nint hWnd, nint wParam, nint lParam) =>
-            this.FakeVirtualKeyMessage(0x01, VM.KEYDOWN);
+            this.FakeVirtualKeyMessage((int) VK.RBUTTON, VM.KEYDOWN);
 
         private nint OnRMButtonReleased(nint hWnd, nint wParam, nint lParam) =>
-            this.FakeVirtualKeyMessage(0x01, VM.KEYUP);
+            this.FakeVirtualKeyMessage((int) VK.RBUTTON, VM.KEYUP);
 
         private nint OnXMButtonPressed(nint hWnd, nint wParam, nint lParam)
         {
