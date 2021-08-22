@@ -2,7 +2,7 @@
 using System.Buffers;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using System.Text;
+
 // ReSharper disable InconsistentNaming
 // ReSharper disable IdentifierTypo
 
@@ -63,11 +63,11 @@ namespace Win32Api
 
         #region Methods
         /// <summary>
-        /// Get the text for the window pointed to by hWnd
+        ///     Get the text for the window pointed to by hWnd
         /// </summary>
         public static string GetWindowText(nint hWnd)
         {
-            int size = GetWindowTextLength(hWnd);
+            var size = GetWindowTextLength(hWnd);
 
             if(size > 0)
             {
@@ -84,13 +84,15 @@ namespace Win32Api
                 return value;
             }
 
-            return String.Empty;
+            return string.Empty;
         }
 
         /// <summary> Find all windows that match the given filter </summary>
-        /// <param name="filter"> A delegate that returns true for windows
-        ///    that should be returned and false for windows that should
-        ///    not be returned </param>
+        /// <param name="filter">
+        ///     A delegate that returns true for windows
+        ///     that should be returned and false for windows that should
+        ///     not be returned
+        /// </param>
         public static IEnumerable<nint> FindWindows(EnumWindowsProc filter)
         {
             nint found = IntPtr.Zero;
@@ -124,6 +126,9 @@ namespace Win32Api
 
         #region Ummnaged
         #region Imports
+        [DllImport("user32.dll")]
+        public static extern int GetSystemMetrics(int nIndex);
+
         [DllImport("user32.dll")]
         public static extern nint SetForegroundWindow(nint hWnd);
 
