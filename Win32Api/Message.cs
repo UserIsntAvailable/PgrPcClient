@@ -16,6 +16,7 @@ namespace Win32Api
             PAINT = 0x000F,
             KEYDOWN = 0x0100,
             KEYUP = 0x0101,
+            MOUSEMOVE = 0x0200,
             LBUTTONDOWN = 0x0201,
             LBUTTONUP = 0x0202,
             LBUTTONDBLCLK = 0x0203,
