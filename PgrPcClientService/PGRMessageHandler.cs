@@ -49,7 +49,7 @@ namespace PgrPcClientService
                 _binds.Add(keyValue, valueValue);
             }
 
-            // TODO - Create method attribute to auto parse Handle message 
+            // TODO - Create method attribute to auto parse Handle message delegates
             var dict = new Dictionary<uint, MessageHandler.HandleMessage>
             {
                 {
@@ -91,8 +91,6 @@ namespace PgrPcClientService
 
             return false;
         }
-
-        // TODO - Move HandleMessage Delegates to a separate class
 
         #region HandleMessage Delegates
         private nint OnKeyPressed(nint hWnd, nint wParam, nint lParam) => this.KeyMessage(VM.KEYDOWN, wParam, lParam);

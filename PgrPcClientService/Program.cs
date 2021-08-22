@@ -13,8 +13,8 @@ while(true)
 
     if(pgrHandle != 0)
     {
-        var cMh = new PGRMessageHandler(ParseConfig(pgrHandle));
-        var overlay = new AppOverlay(cMh, "PGRPcSimulatorClass");
+        PGRMessageHandler pgrMessageHandler = new(ParseConfig(pgrHandle));
+        AppOverlay overlay = new(pgrMessageHandler, "PGRPcSimulatorClass");
         overlay.Run();
     }
 }
