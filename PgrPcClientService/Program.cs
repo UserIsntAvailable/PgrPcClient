@@ -42,7 +42,7 @@ static IConfiguration ParseConfig(nint pgrHandle)
                                      ).Build();
 }
 
-internal class WindowsMouseInfoProvider : IMouseInfoProvider
+class WindowsMouseInfoProvider : IMouseInfoProvider
 {
     public (int X, int Y) GetMousePosition()
     {

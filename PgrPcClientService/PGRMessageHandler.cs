@@ -22,22 +22,22 @@ namespace PgrPcClientService
         private const int VK_MWHEELUP = 0x0E;
         private const int VK_MWHEELDOWN = 0x0F;
         private const int MAPVK_VK_TO_VSC = 0;
-        private readonly nint _appToHook;
-        private readonly Dictionary<nint, nint> _binds = new();
-        private readonly nint _currrentKeyboardLayout = GetKeyboardLayout(0);
-        private readonly ReadOnlyDictionary<uint, MessageHandler.HandleMessage> _messageHooks;
 
         private readonly IMouseFaker _mouseFaker;
-        private readonly int _screenHeight = GetSystemMetrics(1);
+        private readonly nint _appToHook;
+        private readonly Dictionary<nint, nint> _binds = new();
+        private readonly ReadOnlyDictionary<uint, MessageHandler.HandleMessage> _messageHooks;
 
         private readonly int _screenWidth = GetSystemMetrics(0);
+        private readonly int _screenHeight = GetSystemMetrics(1);
+        private readonly nint _currrentKeyboardLayout = GetKeyboardLayout(0);
 
         /*
          * TODO - Simplify the appsettings.json parsing ( I can use MapVirtualKeyExA to 'cast' char to vk )
          * TODO - Implement auto reloading of the appsettings.json
-         * TODO - Implement that clicks on the overlay can go through the emulator when not in camera mode
          * TODO - Focus overlay when PGR is opened
          * TODO - Create help menu ( it just display what keys are bind to what )
+         * TODO - bind (-/+) to change the alpha value of the overlay
          */
         public PGRMessageHandler(IMouseFaker mouseFaker, IConfiguration config)
         {
@@ -120,12 +120,12 @@ namespace PgrPcClientService
             }
         }
 
-        private nint OnMouseMove(nint hwnd, nint wparam, nint lparam)
+        private nint OnMouseMove(nint hWnd, nint wParam, nint lParam)
         {
             const int PADDING = 1;
 
-            var xPos = GET_X_LPARAM((int) lparam);
-            var yPos = GET_Y_LPARAM((int) lparam);
+            var xPos = GET_X_LPARAM((int) lParam);
+            var yPos = GET_Y_LPARAM((int) lParam);
 
             if(xPos == _screenWidth - PADDING)
                 SetCursorPos(PADDING, yPos);
@@ -134,8 +134,17 @@ namespace PgrPcClientService
             return 0;
         }
 
-        private nint OnLMButtonPressed(nint hWnd, nint wParam, nint lParam) =>
-            this.FakeVirtualKeyMessage(0x02, VM.KEYDOWN);
+        private nint OnLMButtonPressed(nint hWnd, nint wParam, nint lParam)
+        {
+            if(!_mouseFaker.IsCameraModeOn)
+            {
+                _mouseFaker.Click(GET_X_LPARAM((int) lParam), GET_Y_LPARAM((int) lParam));
+
+                return 0;
+            }
+
+            return this.FakeVirtualKeyMessage(0x02, VM.KEYDOWN);
+        }
 
         private nint OnLMButtonReleased(nint hWnd, nint wParam, nint lParam) =>
             this.FakeVirtualKeyMessage(0x02, VM.KEYUP);
