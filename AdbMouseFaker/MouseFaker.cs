@@ -14,10 +14,10 @@ namespace AdbMouseFaker
                           ABS_MT_TRACKING_ID = 0x39,
                           DEFAULT_TRACKING_ID = 1,
                           RELEASE_TRACKING_ID = -1;
-        private readonly string _deviceMouseInput;
 
         private readonly IMouseInfoProvider _mouseInfoProvider;
         private readonly ISendEventWrapper _sendEventWrapper;
+        private readonly string _deviceMouseInput;
         private readonly ManualResetEvent _suspendEvent = new(false);
 
         private bool _isCameraModeOn;
@@ -43,7 +43,9 @@ namespace AdbMouseFaker
                 {
                     if(!_isCameraModeOn)
                     {
-                        this.ClickMouse();
+                        var (x, y) = _mouseInfoProvider.GetMousePosition();
+                        
+                        this.ClipMouse(x, y);
                         _suspendEvent.Set();
                     }
                 }
@@ -58,6 +60,12 @@ namespace AdbMouseFaker
 
                 _isCameraModeOn = value;
             }
+        }
+
+        public void Click(int x, int y)
+        {
+            this.ClipMouse(x,y);
+            this.ReleaseMouse();
         }
 
         private void CreateCameraModeThread()
@@ -87,12 +95,10 @@ namespace AdbMouseFaker
             }.Start();
         }
 
-        private void ClickMouse()
+        private void ClipMouse(int x, int y)
         {
             _sendEventWrapper.Send(_deviceMouseInput, EV_ABS, ABS_MT_TRACKING_ID, DEFAULT_TRACKING_ID);
             _sendEventWrapper.Send(_deviceMouseInput, EV_KEY, BTN_TOUCH, 1);
-
-            var (x, y) = _mouseInfoProvider.GetMousePosition();
 
             this.MoveMouse(x, y, 0, 0);
         }
