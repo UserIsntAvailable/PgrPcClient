@@ -1,9 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using WindowsAppOverlay;
+using AdbMouseFaker;
 using Microsoft.Extensions.Configuration;
 using PgrPcClientService;
+using SharpAdbClient;
 using static Win32Api.Window;
+using static Win32Api.Mouse;
 
 // TODO - Create a better 'background service'
 while(true)
@@ -13,7 +17,18 @@ while(true)
 
     if(pgrHandle != 0)
     {
-        PGRMessageHandler pgrMessageHandler = new(ParseConfig(pgrHandle));
+        var config = ParseConfig(pgrHandle);
+
+        var deviceName = config["DeviceName"];
+        var host = config["DeviceHost"];
+        var port = int.Parse(config["DevicePort"]);
+        var deviceInput = config["DeviceInput"];
+
+        DnsEndPoint endPoint = new(host, port);
+        SendEventWrapper sendEventWrapper = new(new AdbClient(), deviceName, endPoint);
+        MouseFaker mouseFaker = new(sendEventWrapper, new WindowsMouseInfoProvider(), deviceInput);
+
+        PGRMessageHandler pgrMessageHandler = new(mouseFaker, config);
         AppOverlay overlay = new(pgrMessageHandler, "PGRPcSimulatorClass");
         overlay.Run();
     }
@@ -25,4 +40,14 @@ static IConfiguration ParseConfig(nint pgrHandle)
                                      .AddInMemoryCollection(
                                          new[] {new KeyValuePair<string, string>("AppToHook", pgrHandle.ToString()),}
                                      ).Build();
+}
+
+internal class WindowsMouseInfoProvider : IMouseInfoProvider
+{
+    public (int X, int Y) GetMousePosition()
+    {
+        GetCursorPos(out var pos);
+
+        return(pos.X, pos.Y);
+    }
 }

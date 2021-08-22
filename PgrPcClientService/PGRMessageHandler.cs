@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using WindowsAppOverlay;
+using AdbMouseFaker;
 using Microsoft.Extensions.Configuration;
 using static Win32Api.Message;
+using static Win32Api.Window;
+using static Win32Api.Mouse;
 using static Win32Api.Keyboard;
 using static Win32Api.Macros;
 
@@ -19,22 +22,23 @@ namespace PgrPcClientService
         private const int VK_MWHEELUP = 0x0E;
         private const int VK_MWHEELDOWN = 0x0F;
         private const int MAPVK_VK_TO_VSC = 0;
-
         private readonly nint _appToHook;
         private readonly Dictionary<nint, nint> _binds = new();
         private readonly nint _currrentKeyboardLayout = GetKeyboardLayout(0);
         private readonly ReadOnlyDictionary<uint, MessageHandler.HandleMessage> _messageHooks;
 
+        private readonly IMouseFaker _mouseFaker;
+
         /*
          * TODO - Simplify the appsettings.json parsing ( I can use MapVirtualKeyExA to 'cast' char to vk )
          * TODO - Implement auto reloading of the appsettings.json
-         * TODO - Implement camera mode from AdbMouseFaker
          * TODO - Implement that clicks on the overlay can go through the emulator when not in camera mode
          * TODO - Focus overlay when PGR is opened
          * TODO - Create help menu ( it just display what keys are bind to what )
          */
-        public PGRMessageHandler(IConfiguration config)
+        public PGRMessageHandler(IMouseFaker mouseFaker, IConfiguration config)
         {
+            _mouseFaker = mouseFaker;
             _appToHook = nint.Parse(config["AppToHook"]);
 
             var gKbSection = config.GetSection("GameKeyBindings");
@@ -95,7 +99,22 @@ namespace PgrPcClientService
         #region HandleMessage Delegates
         private nint OnKeyPressed(nint hWnd, nint wParam, nint lParam) => this.KeyMessage(VM.KEYDOWN, wParam, lParam);
 
-        private nint OnKeyReleased(nint hWnd, nint wParam, nint lParam) => this.KeyMessage(VM.KEYUP, wParam, lParam);
+        private nint OnKeyReleased(nint hWnd, nint wParam, nint lParam)
+        {
+            switch(wParam)
+            {
+                case(int) VK.Key_R:
+                {
+                    ShowCursor(_mouseFaker.IsCameraModeOn);
+                    SetCursorPos(GetSystemMetrics(0) / 2, GetSystemMetrics(1) / 2);
+                    _mouseFaker.IsCameraModeOn = !_mouseFaker.IsCameraModeOn;
+
+                    return 0;
+                }
+                default:
+                    return this.KeyMessage(VM.KEYUP, wParam, lParam);
+            }
+        }
 
         private nint OnRMButtonPressed(nint hWnd, nint wParam, nint lParam) =>
             this.FakeVirtualKeyMessage(0x01, VM.KEYDOWN);
