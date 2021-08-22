@@ -5,7 +5,7 @@ namespace Win32Api
 {
     public static class Macros
     {
-        public static int GET_X_LPARAM(int lp) => (short) HIWORD(lp);
+        public static int GET_X_LPARAM(int lp) => (short) LOWORD(lp);
 
         public static int GET_Y_LPARAM(int lp) => (short) HIWORD(lp);
 
