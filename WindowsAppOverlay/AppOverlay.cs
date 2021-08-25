@@ -54,7 +54,7 @@ namespace WindowsAppOverlay
                 IntPtr.Zero
             );
 
-            SetLayeredWindowAttributes(_hWnd, 0, 25, 0x00000002);
+            SetLayeredWindowAttributes(_hWnd, 0, 1, 0x00000002);
 
             return _hWnd != IntPtr.Zero;
         }

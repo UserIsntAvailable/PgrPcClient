@@ -37,7 +37,7 @@ namespace PgrPcClientService
          * TODO - Implement auto reloading of the appsettings.json
          * TODO - Focus overlay when PGR is opened
          * TODO - Create help menu ( it just display what keys are bind to what )
-         * TODO - bind (-/+) to change the alpha value of the overlay
+         * TODO - Bind (-/+) to change the alpha value of the overlay
          */
         public PGRMessageHandler(IMouseFaker mouseFaker, IConfiguration config)
         {
