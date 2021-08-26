@@ -107,7 +107,7 @@ namespace PgrPcClientService
         {
             switch(wParam)
             {
-                case(int) VK.Key_R:
+                case 'R':
                 {
                     ShowCursor(_mouseFaker.IsCameraModeOn);
                     SetCursorPos(_screenWidth / 2, _screenHeight / 2);
