@@ -33,7 +33,6 @@ namespace PgrPcClientService
         private readonly nint _currrentKeyboardLayout = GetKeyboardLayout(0);
 
         /*
-         * TODO - Simplify the appsettings.json parsing ( I can use MapVirtualKeyExA to 'cast' char to vk )
          * TODO - Implement auto reloading of the appsettings.json
          * TODO - Focus overlay when PGR is opened
          * TODO - Create help menu ( it just display what keys are bind to what )
@@ -107,7 +106,7 @@ namespace PgrPcClientService
         {
             switch(wParam)
             {
-                case 'R':
+                case'R':
                 {
                     ShowCursor(_mouseFaker.IsCameraModeOn);
                     SetCursorPos(_screenWidth / 2, _screenHeight / 2);
@@ -216,9 +215,17 @@ namespace PgrPcClientService
         #region Helper Methods
         private static bool IsHexValue(string str) => str.StartsWith("0x");
 
-        private static nint StrToNint(string str) => IsHexValue(str)
-            ? nint.Parse(str[2..], NumberStyles.HexNumber)
-            : (nint) (uint) Enum.Parse(typeof(VK), str, true);
+        private static nint StrToNint(string str)
+        {
+            if(IsHexValue(str)) return nint.Parse(str[2..], NumberStyles.HexNumber);
+
+            if(Enum.TryParse(typeof(VK), str, true, out var enumValue))
+            {
+                return(nint) (uint) enumValue!;
+            }
+
+            return char.Parse(str);
+        }
 
         private static int GetXButtonVirtualKey(nint wParam) => (int) VK.MBUTTON + HIWORD(wParam);
 
