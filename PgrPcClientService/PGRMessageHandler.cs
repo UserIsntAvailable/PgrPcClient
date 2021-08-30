@@ -219,11 +219,11 @@ namespace PgrPcClientService
         {
             if(IsHexValue(str)) return nint.Parse(str[2..], NumberStyles.HexNumber);
 
-            if(Enum.TryParse(typeof(VK), str, true, out var enumValue))
+            if(Enum.IsDefined(typeof(VK), str))
             {
-                return(nint) (uint) enumValue!;
+                return(nint) (uint) Enum.Parse(typeof(VK), str, true);
             }
-
+            
             return char.Parse(str);
         }
 
