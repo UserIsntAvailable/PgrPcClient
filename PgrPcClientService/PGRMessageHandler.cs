@@ -61,6 +61,8 @@ namespace PgrPcClientService
                 {
                     (uint) VM.DESTROY, (_, _, _) =>
                     {
+                        _mouseFaker.IsCameraModeOn = false;
+                        
                         PostQuitMessage(0);
 
                         return 0;
