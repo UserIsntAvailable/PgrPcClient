@@ -10,6 +10,7 @@ using static Win32Api.Window;
 using static Win32Api.Mouse;
 
 // TODO - Create a better 'background service'
+// TODO - Create an ADB server if not started
 while(true)
 {
     // Using MuMu CN, it should work with other Emulators, just find the Window name that is handling the emulator
