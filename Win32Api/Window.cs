@@ -2,6 +2,7 @@
 using System.Buffers;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using static Win32Api.Common;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable IdentifierTypo
@@ -126,6 +127,9 @@ namespace Win32Api
 
         #region Ummnaged
         #region Imports
+        [DllImport("user32.dll")]
+        private static extern bool GetWindowRect(nint hWnd, out RECT lpRect);
+        
         [DllImport("user32.dll")]
         public static extern int GetSystemMetrics(int nIndex);
 

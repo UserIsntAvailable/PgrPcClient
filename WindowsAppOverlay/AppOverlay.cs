@@ -73,7 +73,7 @@ namespace WindowsAppOverlay
                 hIcon = LoadIconA(IntPtr.Zero, defaultResourceName),
                 hCursor = LoadCursorA(IntPtr.Zero, defaultResourceName),
                 hIconSm = IntPtr.Zero,
-                hbrBackground = new IntPtr(6),
+                hbrBackground = 6,
                 lpszMenuName = null,
                 lpszClassName = className,
             };

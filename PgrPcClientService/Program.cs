@@ -49,6 +49,6 @@ class WindowsMouseInfoProvider : IMouseInfoProvider
     {
         GetCursorPos(out var pos);
 
-        return(pos.X, pos.Y);
+        return((int)pos.x, (int)pos.y);
     }
 }
