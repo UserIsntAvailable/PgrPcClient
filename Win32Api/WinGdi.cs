@@ -2,7 +2,7 @@
 
 namespace Win32Api
 {
-    public class WGDI
+    public static class WinGdi
     {
         #region Ummnaged
         #region Imports
