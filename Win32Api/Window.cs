@@ -129,7 +129,7 @@ namespace Win32Api
         #region Imports
         [DllImport("user32.dll")]
         private static extern bool GetWindowRect(nint hWnd, out RECT lpRect);
-
+        
         [DllImport("user32.dll")]
         public static extern int GetSystemMetrics(int nIndex);
 
@@ -156,12 +156,6 @@ namespace Win32Api
 
         [DllImport("user32.dll")]
         public static extern nint DefWindowProc(nint hWnd, uint uMsg, nint wParam, nint lParam);
-
-        [DllImport("user32.dll")]
-        public static extern int GetClassName(nint hWnd, char[] lpClassName, int nMaxCount);
-        
-        [DllImport("user32.dll")]
-        public static extern int GetClassInfoExA(nint hInstance, char[] lpszClass, out WNDCLASSEX lpwcx);
 
         [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
         public static extern nint CreateWindowExW(
