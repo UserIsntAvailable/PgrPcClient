@@ -128,7 +128,7 @@ namespace Win32Api
         #region Ummnaged
         #region Imports
         [DllImport("user32.dll")]
-        public static extern bool GetWindowRect(nint hWnd, out RECT lpRect);
+        private static extern bool GetWindowRect(nint hWnd, out RECT lpRect);
 
         [DllImport("user32.dll")]
         public static extern int GetSystemMetrics(int nIndex);
@@ -177,18 +177,6 @@ namespace Win32Api
             nint hMenu,
             nint hInstance,
             nint lpParam);
-        
-        [DllImport("user32.dll", ExactSpelling = true, SetLastError = true)]
-        public static extern int UpdateLayeredWindow(
-            nint hwnd,
-            nint hdcDst,
-            out POINT pptDst,
-            out SIZE psize,
-            nint hdcSrc,
-            out POINT pptSrc,
-            uint crKey,
-            [In] ref BLENDFUNCTION pblend,
-            uint dwFlags);
 
         [DllImport("user32.dll", SetLastError = true)]
         public static extern bool SetLayeredWindowAttributes(nint hwnd, uint crKey, byte bAlpha, uint dwFlags);
@@ -211,15 +199,6 @@ namespace Win32Api
             public string lpszMenuName;
             public string lpszClassName;
             public nint hIconSm;
-        }
-        
-        [StructLayout(LayoutKind.Sequential)]
-        public struct BLENDFUNCTION
-        {
-            public byte blendOp;
-            public byte blendFlags;
-            public byte sourceConstantAlpha;
-            public byte alphaFormat;
         }
         #endregion
         #endregion
