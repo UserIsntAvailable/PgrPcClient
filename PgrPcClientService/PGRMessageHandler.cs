@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Drawing;
 using System.Globalization;
 using WindowsAppOverlay;
 using AdbMouseFaker;
@@ -10,6 +11,7 @@ using static Win32Api.Window;
 using static Win32Api.Mouse;
 using static Win32Api.Keyboard;
 using static Win32Api.Macros;
+using static Win32Api.WinGdi;
 
 // ReSharper disable CommentTypo
 // ReSharper disable InconsistentNaming
@@ -33,6 +35,7 @@ namespace PgrPcClientService
         private readonly nint _currrentKeyboardLayout = GetKeyboardLayout(0);
 
         /*
+         * TODO - Refactor all this class
          * TODO - Implement auto reloading of the appsettings.json
          * TODO - Focus overlay when PGR is opened
          * TODO - Create help menu ( it just display what keys are bind to what )
@@ -62,7 +65,7 @@ namespace PgrPcClientService
                     (uint) VM.DESTROY, (_, _, _) =>
                     {
                         _mouseFaker.IsCameraModeOn = false;
-                        
+
                         PostQuitMessage(0);
 
                         return 0;
@@ -129,8 +132,13 @@ namespace PgrPcClientService
             var yPos = GET_Y_LPARAM((int) lParam);
 
             if(xPos == _screenWidth - PADDING)
+            {
                 SetCursorPos(PADDING, yPos);
-            else if(xPos == 0) SetCursorPos(_screenWidth - PADDING - 1, yPos);
+            }
+            else if(xPos == 0)
+            {
+                SetCursorPos(_screenWidth - PADDING - 1, yPos);
+            }
 
             return 0;
         }
@@ -215,6 +223,53 @@ namespace PgrPcClientService
         #endregion
 
         #region Helper Methods
+        private static nint CreateKeymapsHelperWindow(
+            nint parentHWnd,
+            string appClassName,
+            IEnumerable<string> keysToDraw,
+            (int X, int Y) startPosition,
+            int padding)
+        {
+            var cHWnd = CreateWindowExW(
+                0x00080000,
+                appClassName,
+                null,
+                (uint) (WS.VISIBLE | WS.MAXIMIZE | WS.POPUP),
+                0,
+                0,
+                0,
+                0,
+                parentHWnd,
+                IntPtr.Zero,
+                IntPtr.Zero,
+                IntPtr.Zero
+            );
+
+            SetLayeredWindowAttributes(cHWnd, (uint) RGB(255, 255, 255), 255, 1);
+
+            PAINTSTRUCT ps = new();
+            var hdc = BeginPaint(cHWnd, ps);
+
+            using(var graphics = Graphics.FromHdc(hdc))
+            {
+                foreach(var key in keysToDraw)
+                {
+                    graphics.DrawString(
+                        key,
+                        new Font("Arial", 14),
+                        new SolidBrush(Color.Black),
+                        new PointF(startPosition.X, startPosition.Y)
+                    );
+
+                    startPosition.X -= padding;
+                }
+            }
+
+            EndPaint(hdc, ref ps);
+
+            return cHWnd;
+        }
+
         private static bool IsHexValue(string str) => str.StartsWith("0x");
 
         private static nint StrToNint(string str)
@@ -225,7 +280,7 @@ namespace PgrPcClientService
             {
                 return(nint) (uint) Enum.Parse(typeof(VK), str, true);
             }
-            
+
             return char.Parse(str);
         }
 
