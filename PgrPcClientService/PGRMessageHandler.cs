@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Globalization;
+using System.Linq;
 using WindowsAppOverlay;
 using AdbMouseFaker;
 using Microsoft.Extensions.Configuration;
@@ -34,11 +35,12 @@ namespace PgrPcClientService
         private readonly int _screenHeight = GetSystemMetrics(1);
         private readonly nint _currrentKeyboardLayout = GetKeyboardLayout(0);
 
+        private bool _winCreated;
+
         /*
-         * TODO - Refactor all this class
+         * TODO - Move all the appsetting.json parsing to another class.
          * TODO - Implement auto reloading of the appsettings.json
          * TODO - Focus overlay when PGR is opened
-         * TODO - Create help menu ( it just display what keys are bind to what )
          * TODO - Bind (-/+) to change the alpha value of the overlay
          */
         public PGRMessageHandler(IMouseFaker mouseFaker, IConfiguration config)
@@ -47,13 +49,13 @@ namespace PgrPcClientService
             _appToHook = nint.Parse(config["AppToHook"]);
 
             var gKbSection = config.GetSection("GameKeyBindings");
+            var oBSectionChildren = config.GetSection("OverlayBinds").GetChildren().ToArray();
 
-            foreach(var children in config.GetSection("OverlayBinds").GetChildren())
+            foreach(var child in oBSectionChildren)
             {
-                var keyValue = StrToNint(children.Key);
+                var keyValue = StrToNint(child.Key);
 
-                var valueValue =
-                    gKbSection.Exists() ? StrToNint(gKbSection[children.Value]) : StrToNint(children.Value);
+                var valueValue = gKbSection.Exists() ? StrToNint(gKbSection[child.Value]) : StrToNint(child.Value);
 
                 _binds.Add(keyValue, valueValue);
             }
@@ -62,15 +64,43 @@ namespace PgrPcClientService
             var dict = new Dictionary<uint, MessageHandler.HandleMessage>
             {
                 {
-                    (uint) VM.DESTROY, (_, _, _) =>
+                    // TODO - Refactor all this mess
+                    (uint) VM.CREATE, (hWnd, _, lParam) =>
                     {
-                        _mouseFaker.IsCameraModeOn = false;
+                        if(_winCreated) return 0;
 
-                        PostQuitMessage(0);
+                        _winCreated = true;
+
+                        var keys = oBSectionChildren.Where(child => child.Value.StartsWith("Signal"))
+                                                    .OrderBy(child => child.Value).Select(
+                                                        child =>
+                                                        {
+                                                            var value = child.Key;
+
+                                                            if(value.Length == 1) return value;
+
+                                                            if(IsHexValue(value))
+                                                            {
+                                                                return IsMWheelGoingUp(StrToNint(value)) ? "WU" : "WD";
+                                                            }
+
+                                                            return value[..2];
+                                                        }
+                                                    );
+
+                        CreateKeymapsHelperWindow(
+                            hWnd,
+                            config["AppClassName"],
+                            keys,
+                            (int.Parse(config["KeyBindsWindowSettings:xStartPosition"]),
+                             int.Parse(config["KeyBindsWindowSettings:yStartPosition"])),
+                            int.Parse(config["KeyBindsWindowSettings:Padding"])
+                        );
 
                         return 0;
                     }
                 },
+                {(uint) VM.DESTROY, this.OnDestroy},
                 {(uint) VM.KEYDOWN, this.OnKeyPressed},
                 {(uint) VM.KEYUP, this.OnKeyReleased},
                 {(uint) VM.MOUSEMOVE, this.OnMouseMove},
@@ -104,7 +134,18 @@ namespace PgrPcClientService
             return false;
         }
 
+        // TODO - Move handle messages delegates to their own class
+
         #region HandleMessage Delegates
+        private nint OnDestroy(nint nint, nint nint1, nint nint2)
+        {
+            _mouseFaker.IsCameraModeOn = false;
+
+            PostQuitMessage(0);
+
+            return 0;
+        }
+
         private nint OnKeyPressed(nint hWnd, nint wParam, nint lParam) => this.KeyMessage(VM.KEYDOWN, wParam, lParam);
 
         private nint OnKeyReleased(nint hWnd, nint wParam, nint lParam)
@@ -193,6 +234,8 @@ namespace PgrPcClientService
         }
         #endregion
 
+        // TODO - Move private methods to their own class
+
         #region Private Methods
         private nint KeyMessage(VM vM, nint wParam, nint lParam)
         {
@@ -223,6 +266,12 @@ namespace PgrPcClientService
         #endregion
 
         #region Helper Methods
+        /*
+         * TODO - Move CreateKeymapsHelperWindow to its own class
+         * TODO - GetClass of parentHWnd and modify lpfnWndProc
+         * TODO - Fix Anti Aliassing of text
+         * TODO - Be able to configure parameters of DrawString ( Font, Color, etc )
+         */
         private static nint CreateKeymapsHelperWindow(
             nint parentHWnd,
             string appClassName,
@@ -257,7 +306,7 @@ namespace PgrPcClientService
                     graphics.DrawString(
                         key,
                         new Font("Arial", 14),
-                        new SolidBrush(Color.Black),
+                        new SolidBrush(Color.Red),
                         new PointF(startPosition.X, startPosition.Y)
                     );
 

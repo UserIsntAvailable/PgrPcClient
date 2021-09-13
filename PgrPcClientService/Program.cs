@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using WindowsAppOverlay;
@@ -6,9 +7,10 @@ using AdbMouseFaker;
 using Microsoft.Extensions.Configuration;
 using PgrPcClientService;
 using SharpAdbClient;
-using static Win32Api.Window;
 using static Win32Api.Mouse;
+using static Win32Api.Window;
 
+// TODO - Organize the appsettings.json better
 // TODO - Create a better 'background service'
 // TODO - Create an ADB server if not started
 while(true)
@@ -30,7 +32,7 @@ while(true)
         MouseFaker mouseFaker = new(sendEventWrapper, new WindowsMouseInfoProvider(), deviceInput);
 
         PGRMessageHandler pgrMessageHandler = new(mouseFaker, config);
-        AppOverlay overlay = new(pgrMessageHandler, "PGRPcSimulatorClass");
+        AppOverlay overlay = new(pgrMessageHandler, config["AppClassName"]);
         overlay.Run();
     }
 }
