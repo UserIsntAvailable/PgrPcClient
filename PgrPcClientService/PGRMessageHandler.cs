@@ -74,6 +74,7 @@ namespace PgrPcClientService
                         var keys = oBSectionChildren.Where(child => child.Value.StartsWith("Signal"))
                                                     .OrderBy(child => child.Value).Select(
                                                         child =>
+                                                        // TODO - Refactor
                                                         {
                                                             var value = child.Key;
 
@@ -81,7 +82,12 @@ namespace PgrPcClientService
 
                                                             if(IsHexValue(value))
                                                             {
-                                                                return IsMWheelGoingUp(StrToNint(value)) ? "WU" : "WD";
+                                                                return StrToNint(value) == VK_MWHEELUP ? "WU" : "WD";
+                                                            }
+
+                                                            if(value.StartsWith("XB"))
+                                                            {
+                                                                return$"XB{value[^1]}";
                                                             }
 
                                                             return value[..2];
