@@ -48,8 +48,8 @@ namespace PgrPcClientService
             _mouseFaker = mouseFaker;
             _appToHook = nint.Parse(config["AppToHook"]);
 
-            var gKbSection = config.GetSection("GameKeyBindings");
-            var oBSectionChildren = config.GetSection("OverlayBinds").GetChildren().ToArray();
+            var gKbSection = config.GetSection("GameBindings");
+            var oBSectionChildren = config.GetSection("OverlayBindings").GetChildren().ToArray();
 
             foreach(var child in oBSectionChildren)
             {
