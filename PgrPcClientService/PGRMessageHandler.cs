@@ -7,6 +7,7 @@ using System.Linq;
 using WindowsAppOverlay;
 using AdbMouseFaker;
 using Microsoft.Extensions.Configuration;
+using PgrPcClientService.Extensions;
 using static Win32Api.Message;
 using static Win32Api.Window;
 using static Win32Api.Mouse;
@@ -38,7 +39,6 @@ namespace PgrPcClientService
         private bool _winCreated;
 
         /*
-         * TODO - Move all the appsetting.json parsing to another class.
          * TODO - Implement auto reloading of the appsettings.json
          * TODO - Focus overlay when PGR is opened
          * TODO - Bind (-/+) to change the alpha value of the overlay
@@ -80,7 +80,7 @@ namespace PgrPcClientService
 
                                                             if(value.Length == 1) return value;
 
-                                                            if(IsHexValue(value))
+                                                            if(value.IsHexValue())
                                                             {
                                                                 return StrToNint(value) == VK_MWHEELUP ? "WU" : "WD";
                                                             }
@@ -325,11 +325,9 @@ namespace PgrPcClientService
             return cHWnd;
         }
 
-        private static bool IsHexValue(string str) => str.StartsWith("0x");
-
         private static nint StrToNint(string str)
         {
-            if(IsHexValue(str)) return nint.Parse(str[2..], NumberStyles.HexNumber);
+            if(str.IsHexValue()) return nint.Parse(str[2..], NumberStyles.HexNumber);
 
             if(Enum.IsDefined(typeof(VK), str))
             {
