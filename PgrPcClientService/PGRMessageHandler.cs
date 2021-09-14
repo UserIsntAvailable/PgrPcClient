@@ -55,7 +55,9 @@ namespace PgrPcClientService
             {
                 var keyValue = StrToNint(child.Key);
 
-                var valueValue = gKbSection.Exists() ? StrToNint(gKbSection[child.Value]) : StrToNint(child.Value);
+                var valueValue = gKbSection[child.Value] != null
+                    ? StrToNint(gKbSection[child.Value])
+                    : StrToNint(child.Value);
 
                 _binds.Add(keyValue, valueValue);
             }
