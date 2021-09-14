@@ -29,7 +29,7 @@ namespace PgrPcClientService
 
         private readonly IMouseFaker _mouseFaker;
         private readonly nint _appToHook;
-        private readonly Dictionary<nint, nint> _binds = new();
+        private readonly IDictionary<nint, nint> _binds;
         private readonly ReadOnlyDictionary<uint, MessageHandler.HandleMessage> _messageHooks;
 
         private readonly int _screenWidth = GetSystemMetrics(0);
@@ -43,24 +43,11 @@ namespace PgrPcClientService
          * TODO - Focus overlay when PGR is opened
          * TODO - Bind (-/+) to change the alpha value of the overlay
          */
-        public PGRMessageHandler(IMouseFaker mouseFaker, IConfiguration config)
+        public PGRMessageHandler(IMouseFaker mouseFaker, IConfiguration config, IDictionary<nint, nint> binds)
         {
             _mouseFaker = mouseFaker;
             _appToHook = nint.Parse(config["AppToHook"]);
-
-            var gKbSection = config.GetSection("GameBindings");
-            var oBSectionChildren = config.GetSection("OverlayBindings").GetChildren().ToArray();
-
-            foreach(var child in oBSectionChildren)
-            {
-                var keyValue = StrToNint(child.Key);
-
-                var valueValue = gKbSection[child.Value] != null
-                    ? StrToNint(gKbSection[child.Value])
-                    : StrToNint(child.Value);
-
-                _binds.Add(keyValue, valueValue);
-            }
+            _binds = binds;
 
             // TODO - Create method attribute to auto parse Handle message delegates
             var dict = new Dictionary<uint, MessageHandler.HandleMessage>
@@ -73,28 +60,29 @@ namespace PgrPcClientService
 
                         _winCreated = true;
 
-                        var keys = oBSectionChildren.Where(child => child.Value.StartsWith("Signal"))
-                                                    .OrderBy(child => child.Value).Select(
-                                                        child =>
-                                                        // TODO - Refactor
-                                                        {
-                                                            var value = child.Key;
+                        var keys = config.GetSection("OverlayBindings").GetChildren()
+                                         .Where(child => child.Value.StartsWith("Signal")).OrderBy(child => child.Value)
+                                         .Select(
+                                             child =>
+                                                 // TODO - Refactor
+                                             {
+                                                 var value = child.Key;
 
-                                                            if(value.Length == 1) return value;
+                                                 if(value.Length == 1) return value;
 
-                                                            if(value.IsHexValue())
-                                                            {
-                                                                return StrToNint(value) == VK_MWHEELUP ? "WU" : "WD";
-                                                            }
+                                                 if(value.IsHexValue())
+                                                 {
+                                                     return StrToNint(value) == VK_MWHEELUP ? "WU" : "WD";
+                                                 }
 
-                                                            if(value.StartsWith("XB"))
-                                                            {
-                                                                return$"XB{value[^1]}";
-                                                            }
+                                                 if(value.StartsWith("XB"))
+                                                 {
+                                                     return$"XB{value[^1]}";
+                                                 }
 
-                                                            return value[..2];
-                                                        }
-                                                    );
+                                                 return value[..2];
+                                             }
+                                         );
 
                         CreateKeymapsHelperWindow(
                             hWnd,

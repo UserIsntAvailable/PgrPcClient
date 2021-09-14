@@ -1,11 +1,7 @@
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
-using System.Text;
-using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 using FluentAssertions;
-using Microsoft.Extensions.FileProviders;
 using Win32Api;
 using Xunit;
 

@@ -8,6 +8,7 @@ using PgrPcClientService;
 using SharpAdbClient;
 using static Win32Api.Mouse;
 using static Win32Api.Window;
+using IConfigurationParser = WindowsAppOverlay.IConfigurationParser;
 
 // TODO - Organize the appsettings.json better
 // TODO - Create a better 'background service'
@@ -19,7 +20,7 @@ while(true)
 
     if(pgrHandle != 0)
     {
-        var config = ParseConfig(pgrHandle);
+        var config = SetupConfig(pgrHandle);
 
         var host = config["DeviceHost"];
         var port = int.Parse(config["DevicePort"]);
@@ -30,13 +31,14 @@ while(true)
         SendEventWrapper sendEventWrapper = new(new AdbClient(), deviceName, endPoint);
         MouseFaker mouseFaker = new(sendEventWrapper, new WindowsMouseInfoProvider(), deviceInput);
 
-        PGRMessageHandler pgrMessageHandler = new(mouseFaker, config);
+        PgrPcClientService.IConfigurationParser configParser = new PgrPcClientService.ConfigurationParser();
+        PGRMessageHandler pgrMessageHandler = new(mouseFaker, config, configParser.GetBinds(config));
         AppOverlay overlay = new(pgrMessageHandler, config["AppClassName"]);
         overlay.Run();
     }
 }
 
-static IConfiguration ParseConfig(nint pgrHandle)
+static IConfiguration SetupConfig(nint pgrHandle)
 {
     return new ConfigurationBuilder().AddJsonFile("appsettings.json")
                                      .AddInMemoryCollection(
