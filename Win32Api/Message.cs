@@ -9,7 +9,7 @@ namespace Win32Api
     public static class Message
     {
         #region Enums
-        public enum VM : uint
+        public enum WM : uint
         {
             CREATE = 0x0001,
             DESTROY = 0x0002,

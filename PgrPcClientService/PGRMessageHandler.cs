@@ -4,10 +4,10 @@ using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Globalization;
 using System.Linq;
-using WindowsAppOverlay;
 using AdbMouseFaker;
 using Microsoft.Extensions.Configuration;
 using PgrPcClientService.Extensions;
+using WindowsAppOverlay;
 using static Win32Api.Message;
 using static Win32Api.Window;
 using static Win32Api.Mouse;
@@ -54,7 +54,7 @@ namespace PgrPcClientService
             {
                 {
                     // TODO - Refactor all this mess
-                    (uint) VM.CREATE, (hWnd, _, lParam) =>
+                    (uint) WM.CREATE, (hWnd, _, lParam) =>
                     {
                         if(_winCreated) return 0;
 
@@ -96,21 +96,21 @@ namespace PgrPcClientService
                         return 0;
                     }
                 },
-                {(uint) VM.DESTROY, this.OnDestroy},
-                {(uint) VM.KEYDOWN, this.OnKeyPressed},
-                {(uint) VM.KEYUP, this.OnKeyReleased},
-                {(uint) VM.MOUSEMOVE, this.OnMouseMove},
-                {(uint) VM.LBUTTONDOWN, this.OnLMButtonPressed},
-                {(uint) VM.LBUTTONUP, this.OnLMButtonReleased},
+                {(uint) WM.DESTROY, this.OnDestroy},
+                {(uint) WM.KEYDOWN, this.OnKeyPressed},
+                {(uint) WM.KEYUP, this.OnKeyReleased},
+                {(uint) WM.MOUSEMOVE, this.OnMouseMove},
+                {(uint) WM.LBUTTONDOWN, this.OnLMButtonPressed},
+                {(uint) WM.LBUTTONUP, this.OnLMButtonReleased},
                 // TODO - LBUTTONDBLCLK/RBUTTONDBLCLK events are problematic
-                {(uint) VM.LBUTTONDBLCLK, this.OnLMButtonPressed},
-                {(uint) VM.RBUTTONDBLCLK, this.OnRMButtonPressed},
+                {(uint) WM.LBUTTONDBLCLK, this.OnLMButtonPressed},
+                {(uint) WM.RBUTTONDBLCLK, this.OnRMButtonPressed},
                 //
-                {(uint) VM.RBUTTONDOWN, this.OnRMButtonPressed},
-                {(uint) VM.RBUTTONUP, this.OnRMButtonReleased},
-                {(uint) VM.XBUTTONDOWN, this.OnXMButtonPressed},
-                {(uint) VM.XBUTTONUP, this.OnXMButtonReleased},
-                {(uint) VM.MOUSEWHEEL, this.OnMouseWheel},
+                {(uint) WM.RBUTTONDOWN, this.OnRMButtonPressed},
+                {(uint) WM.RBUTTONUP, this.OnRMButtonReleased},
+                {(uint) WM.XBUTTONDOWN, this.OnXMButtonPressed},
+                {(uint) WM.XBUTTONUP, this.OnXMButtonReleased},
+                {(uint) WM.MOUSEWHEEL, this.OnMouseWheel},
             };
 
             _messageHooks = new ReadOnlyDictionary<uint, MessageHandler.HandleMessage>(dict);
@@ -142,7 +142,7 @@ namespace PgrPcClientService
             return 0;
         }
 
-        private nint OnKeyPressed(nint hWnd, nint wParam, nint lParam) => this.KeyMessage(VM.KEYDOWN, wParam, lParam);
+        private nint OnKeyPressed(nint hWnd, nint wParam, nint lParam) => this.KeyMessage(WM.KEYDOWN, wParam, lParam);
 
         private nint OnKeyReleased(nint hWnd, nint wParam, nint lParam)
         {
@@ -158,7 +158,7 @@ namespace PgrPcClientService
                     return 0;
                 }
                 default:
-                    return this.KeyMessage(VM.KEYUP, wParam, lParam);
+                    return this.KeyMessage(WM.KEYUP, wParam, lParam);
             }
         }
 
@@ -191,68 +191,68 @@ namespace PgrPcClientService
                 return 0;
             }
 
-            return this.FakeVirtualKeyMessage((int) VK.LBUTTON, VM.KEYDOWN);
+            return this.FakeVirtualKeyMessage((int) VK.LBUTTON, WM.KEYDOWN);
         }
 
         private nint OnLMButtonReleased(nint hWnd, nint wParam, nint lParam) =>
-            this.FakeVirtualKeyMessage((int) VK.LBUTTON, VM.KEYUP);
+            this.FakeVirtualKeyMessage((int) VK.LBUTTON, WM.KEYUP);
 
         private nint OnRMButtonPressed(nint hWnd, nint wParam, nint lParam) =>
-            this.FakeVirtualKeyMessage((int) VK.RBUTTON, VM.KEYDOWN);
+            this.FakeVirtualKeyMessage((int) VK.RBUTTON, WM.KEYDOWN);
 
         private nint OnRMButtonReleased(nint hWnd, nint wParam, nint lParam) =>
-            this.FakeVirtualKeyMessage((int) VK.RBUTTON, VM.KEYUP);
+            this.FakeVirtualKeyMessage((int) VK.RBUTTON, WM.KEYUP);
 
         private nint OnXMButtonPressed(nint hWnd, nint wParam, nint lParam)
         {
             var vK = GetXButtonVirtualKey(wParam);
 
-            return this.FakeVirtualKeyMessage(vK, VM.KEYDOWN);
+            return this.FakeVirtualKeyMessage(vK, WM.KEYDOWN);
         }
 
         private nint OnXMButtonReleased(nint hWnd, nint wParam, nint lParam)
         {
             var vK = GetXButtonVirtualKey(wParam);
 
-            return this.FakeVirtualKeyMessage(vK, VM.KEYUP);
+            return this.FakeVirtualKeyMessage(vK, WM.KEYUP);
         }
 
         private nint OnMouseWheel(nint hWnd, nint wParam, nint lParam)
         {
             if(IsMWheelGoingUp(wParam))
             {
-                this.FakeVirtualKeyMessage(VK_MWHEELUP, VM.KEYDOWN);
+                this.FakeVirtualKeyMessage(VK_MWHEELUP, WM.KEYDOWN);
 
-                return this.FakeVirtualKeyMessage(VK_MWHEELUP, VM.KEYUP);
+                return this.FakeVirtualKeyMessage(VK_MWHEELUP, WM.KEYUP);
             }
 
-            this.FakeVirtualKeyMessage(VK_MWHEELDOWN, VM.KEYDOWN);
+            this.FakeVirtualKeyMessage(VK_MWHEELDOWN, WM.KEYDOWN);
 
-            return this.FakeVirtualKeyMessage(VK_MWHEELDOWN, VM.KEYUP);
+            return this.FakeVirtualKeyMessage(VK_MWHEELDOWN, WM.KEYUP);
         }
         #endregion
 
         // TODO - Move private methods to their own class
 
         #region Private Methods
-        private nint KeyMessage(VM vM, nint wParam, nint lParam)
+        private nint KeyMessage(WM wM, nint wParam, nint lParam)
         {
-            var message = (uint) vM;
+            var message = (uint) wM;
 
             return _binds.ContainsKey(wParam)
-                ? this.FakeVirtualKeyMessage(wParam, vM)
+                ? this.FakeVirtualKeyMessage(wParam, wM)
                 : SendMessage(_appToHook, message, wParam, lParam);
         }
 
-        private nint FakeVirtualKeyMessage(nint vK, VM vM)
+        private nint FakeVirtualKeyMessage(nint vK, WM wM)
         {
-            var message = (uint) vM;
+            var message = (uint) wM;
 
             if(_binds.TryGetValue(vK, out var value))
             {
                 var scanCode = MapVirtualKeyExA((uint) value, MAPVK_VK_TO_VSC, _currrentKeyboardLayout);
 
-                var newLParam = FakeKeyLParam(scanCode, vM == VM.KEYDOWN);
+                var newLParam = FakeKeyLParam(scanCode, wM == WM.KEYDOWN);
             #if DEBUG
                 Console.WriteLine($"VK: {vK} -> {value}, lParam: {newLParam}");
             #endif

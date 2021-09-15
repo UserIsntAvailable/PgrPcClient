@@ -41,7 +41,7 @@ namespace WindowsAppOverlay
             return new Dictionary<uint, HandleMessage>()
             {
                 {
-                    (uint) VM.DESTROY, (_, _, _) =>
+                    (uint) WM.DESTROY, (_, _, _) =>
                     {
                         PostQuitMessage(0);
 

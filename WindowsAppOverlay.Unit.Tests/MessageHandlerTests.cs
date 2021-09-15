@@ -1,6 +1,6 @@
 ﻿using FluentAssertions;
-using static Win32Api.Message;
 using Xunit;
+using static Win32Api.Message;
 
 namespace WindowsAppOverlay.Unit.Tests
 {
@@ -11,7 +11,7 @@ namespace WindowsAppOverlay.Unit.Tests
         [Fact]
         public void TryGetMessageDelegate_ShouldReturnTrue_WhenMessageIsInTheDictionary()
         {
-            var expected = _sut.TryGetMessageDelegate((uint) VM.DESTROY, out _);
+            var expected = _sut.TryGetMessageDelegate((uint) WM.DESTROY, out _);
 
             expected.Should().BeTrue();
         }
