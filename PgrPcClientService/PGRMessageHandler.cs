@@ -25,7 +25,6 @@ namespace PgrPcClientService
     {
         private const int VK_MWHEELUP = 0x0E;
         private const int VK_MWHEELDOWN = 0x0F;
-        private const int MAPVK_VK_TO_VSC = 0;
 
         private readonly IMouseFaker _mouseFaker;
         private readonly nint _pgrAppHWnd;
@@ -250,7 +249,7 @@ namespace PgrPcClientService
 
             if(_binds.TryGetValue(vK, out var value))
             {
-                var scanCode = MapVirtualKeyExA((uint) value, MAPVK_VK_TO_VSC, _currrentKeyboardLayout);
+                var scanCode = MapVirtualKeyExA((uint) value, (uint) MAPVK.VK_TO_VSC, _currrentKeyboardLayout);
 
                 var newLParam = FakeKeyLParam(scanCode, wM == WM.KEYDOWN);
             #if DEBUG

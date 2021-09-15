@@ -15,11 +15,20 @@ namespace Win32Api
             MBUTTON = 0x04,
             XBUTTON1 = 0x05,
             XBUTTON2 = 0x06,
-            
+
             SPACE = 0x20,
 
             LSHIFT = 0xA0,
             RSHIFT = 0xA1,
+        }
+
+        public enum MAPVK : uint
+        {
+            VK_TO_VSC = 0,
+            VSC_TO_VK = 1,
+            VK_TO_CHAR = 2,
+            VSC_TO_VK_EX = 3,
+            VK_TO_VSC_EX = 4,
         }
         #endregion
 
