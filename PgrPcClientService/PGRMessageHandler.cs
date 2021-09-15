@@ -133,7 +133,7 @@ namespace PgrPcClientService
         // TODO - Move handle messages delegates to their own class
 
         #region HandleMessage Delegates
-        private nint OnDestroy(nint nint, nint nint1, nint nint2)
+        private nint OnDestroy(nint hWnd, nint wParam, nint lParam)
         {
             _mouseFaker.IsCameraModeOn = false;
 
@@ -148,6 +148,7 @@ namespace PgrPcClientService
         {
             switch(wParam)
             {
+                // TODO - Set CameraMode to true automatically when entering a stage
                 case'R':
                 {
                     ShowCursor(_mouseFaker.IsCameraModeOn);
@@ -184,6 +185,7 @@ namespace PgrPcClientService
         {
             if(!_mouseFaker.IsCameraModeOn)
             {
+                // TODO - Be able to drag
                 _mouseFaker.Click(GET_X_LPARAM((int) lParam), GET_Y_LPARAM((int) lParam));
 
                 return 0;
@@ -315,6 +317,7 @@ namespace PgrPcClientService
             return cHWnd;
         }
 
+        // TODO - I need to remove this ( I will do it once I refactor all the class ).
         private static nint StrToNint(string str)
         {
             if(str.IsHexValue()) return nint.Parse(str[2..], NumberStyles.HexNumber);
