@@ -42,7 +42,7 @@ static IConfiguration SetupConfig(nint pgrHandle)
 {
     return new ConfigurationBuilder().AddJsonFile("appsettings.json")
                                      .AddInMemoryCollection(
-                                         new[] {new KeyValuePair<string, string>("AppToHook", pgrHandle.ToString()),}
+                                         new[] {new KeyValuePair<string, string>("PgrAppHWnd", pgrHandle.ToString()),}
                                      ).Build();
 }
 

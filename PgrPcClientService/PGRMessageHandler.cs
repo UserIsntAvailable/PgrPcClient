@@ -28,7 +28,7 @@ namespace PgrPcClientService
         private const int MAPVK_VK_TO_VSC = 0;
 
         private readonly IMouseFaker _mouseFaker;
-        private readonly nint _appToHook;
+        private readonly nint _pgrAppHWnd;
         private readonly IDictionary<nint, nint> _binds;
         private readonly ReadOnlyDictionary<uint, MessageHandler.HandleMessage> _messageHooks;
 
@@ -46,7 +46,7 @@ namespace PgrPcClientService
         public PGRMessageHandler(IMouseFaker mouseFaker, IConfiguration config, IDictionary<nint, nint> binds)
         {
             _mouseFaker = mouseFaker;
-            _appToHook = nint.Parse(config["AppToHook"]);
+            _pgrAppHWnd = nint.Parse(config["PgrAppHWnd"]);
             _binds = binds;
 
             // TODO - Create method attribute to auto parse Handle message delegates
@@ -241,7 +241,7 @@ namespace PgrPcClientService
 
             return _binds.ContainsKey(wParam)
                 ? this.FakeVirtualKeyMessage(wParam, wM)
-                : SendMessage(_appToHook, message, wParam, lParam);
+                : SendMessage(_pgrAppHWnd, message, wParam, lParam);
         }
 
         private nint FakeVirtualKeyMessage(nint vK, WM wM)
@@ -256,7 +256,7 @@ namespace PgrPcClientService
             #if DEBUG
                 Console.WriteLine($"VK: {vK} -> {value}, lParam: {newLParam}");
             #endif
-                SendMessage(_appToHook, message, value, newLParam);
+                SendMessage(_pgrAppHWnd, message, value, newLParam);
             }
 
             return 0;
