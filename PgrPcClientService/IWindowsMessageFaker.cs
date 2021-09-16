@@ -5,10 +5,10 @@ namespace PgrPcClientService
 {
     public interface IWindowsMessageFaker
     {
-        public Func<nint,uint,nint,nint,nint> MessageSender { get; set; }
+        public Func<nint,uint,nint,nint,nint> MessageSender { get; }
         
-        public nint KeyMessage(WM wM, nint wParam, nint lParam);
+        public nint KeyMessage(bool isKeyDown, nint wParam, nint lParam);
 
-        public nint VirtualKeyMessage(nint vK, WM wM);
+        public nint VirtualKeyMessage(nint vK, bool isKeyDown);
     }
 }

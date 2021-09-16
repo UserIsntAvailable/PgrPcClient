@@ -21,28 +21,26 @@ namespace PgrPcClientService
             this.MessageSender = messageSender;
         }
 
-        public Func<nint, uint, nint, nint, nint> MessageSender { get; set; }
+        public Func<nint, uint, nint, nint, nint> MessageSender { get; }
 
-        public nint KeyMessage(WM wM, nint wParam, nint lParam)
+        public nint KeyMessage(bool isKeyDown, nint wParam, nint lParam)
         {
-            var message = (uint) wM;
-
             return _binds.ContainsKey(wParam)
-                ? this.VirtualKeyMessage(wParam, wM)
-                : this.MessageSender(_appHWnd, message, wParam, lParam);
+                ? this.VirtualKeyMessage(wParam, isKeyDown)
+                : this.MessageSender(_appHWnd, (uint) (isKeyDown ? WM.KEYDOWN : WM.KEYUP), wParam, lParam);
         }
 
-        public nint VirtualKeyMessage(nint vK, WM wM)
+        public nint VirtualKeyMessage(nint vK, bool isKeyDown)
         {
-            var message = (uint) wM;
+            var vM = isKeyDown ? WM.KEYDOWN : WM.KEYUP;
 
             if(!_binds.TryGetValue(vK, out var value)) return 0;
 
             var scanCode = MapVirtualKeyExA((uint) value, (uint) MAPVK.VK_TO_VSC, _currentKeyboardLayout);
 
-            var newLParam = FakeKeyLParam(scanCode, wM == WM.KEYDOWN);
+            var newLParam = FakeKeyLParam(scanCode, isKeyDown);
 
-            return this.MessageSender(_appHWnd, message, value, newLParam);
+            return this.MessageSender(_appHWnd, (uint) vM, value, newLParam);
 
             static nint FakeKeyLParam(nint scanCode, bool isKeyDown)
             {
