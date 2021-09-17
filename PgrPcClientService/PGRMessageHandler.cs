@@ -27,13 +27,11 @@ namespace PgrPcClientService
         private const int VK_MWHEELDOWN = 0x0F;
 
         private readonly IMouseFaker _mouseFaker;
-        private readonly nint _pgrAppHWnd;
-        private readonly IDictionary<nint, nint> _binds;
+        private readonly IWindowsMessageFaker _messageFaker;
         private readonly ReadOnlyDictionary<uint, MessageHandler.HandleMessage> _messageHooks;
 
         private readonly int _screenWidth = GetSystemMetrics(0);
         private readonly int _screenHeight = GetSystemMetrics(1);
-        private readonly nint _currrentKeyboardLayout = GetKeyboardLayout(0);
 
         private bool _winCreated;
 
@@ -42,18 +40,17 @@ namespace PgrPcClientService
          * TODO - Focus overlay when PGR is opened
          * TODO - Bind (-/+) to change the alpha value of the overlay
          */
-        public PGRMessageHandler(IMouseFaker mouseFaker, IConfiguration config, IDictionary<nint, nint> binds)
+        public PGRMessageHandler(IMouseFaker mouseFaker, IWindowsMessageFaker messageFaker, IConfiguration config)
         {
             _mouseFaker = mouseFaker;
-            _pgrAppHWnd = nint.Parse(config["PgrAppHWnd"]);
-            _binds = binds;
+            _messageFaker = messageFaker;
 
             // TODO - Create method attribute to auto parse Handle message delegates
             var dict = new Dictionary<uint, MessageHandler.HandleMessage>
             {
                 {
                     // TODO - Refactor all this mess
-                    (uint) WM.CREATE, (hWnd, _, lParam) =>
+                    (uint)WM.CREATE, (hWnd, _, lParam) =>
                     {
                         if(_winCreated) return 0;
 
@@ -95,21 +92,21 @@ namespace PgrPcClientService
                         return 0;
                     }
                 },
-                {(uint) WM.DESTROY, this.OnDestroy},
-                {(uint) WM.KEYDOWN, this.OnKeyPressed},
-                {(uint) WM.KEYUP, this.OnKeyReleased},
-                {(uint) WM.MOUSEMOVE, this.OnMouseMove},
-                {(uint) WM.LBUTTONDOWN, this.OnLMButtonPressed},
-                {(uint) WM.LBUTTONUP, this.OnLMButtonReleased},
+                { (uint)WM.DESTROY, this.OnDestroy },
+                { (uint)WM.KEYDOWN, this.OnKeyPressed },
+                { (uint)WM.KEYUP, this.OnKeyReleased },
+                { (uint)WM.MOUSEMOVE, this.OnMouseMove },
+                { (uint)WM.LBUTTONDOWN, this.OnLMButtonPressed },
+                { (uint)WM.LBUTTONUP, this.OnLMButtonReleased },
                 // TODO - LBUTTONDBLCLK/RBUTTONDBLCLK events are problematic
-                {(uint) WM.LBUTTONDBLCLK, this.OnLMButtonPressed},
-                {(uint) WM.RBUTTONDBLCLK, this.OnRMButtonPressed},
+                { (uint)WM.LBUTTONDBLCLK, this.OnLMButtonPressed },
+                { (uint)WM.RBUTTONDBLCLK, this.OnRMButtonPressed },
                 //
-                {(uint) WM.RBUTTONDOWN, this.OnRMButtonPressed},
-                {(uint) WM.RBUTTONUP, this.OnRMButtonReleased},
-                {(uint) WM.XBUTTONDOWN, this.OnXMButtonPressed},
-                {(uint) WM.XBUTTONUP, this.OnXMButtonReleased},
-                {(uint) WM.MOUSEWHEEL, this.OnMouseWheel},
+                { (uint)WM.RBUTTONDOWN, this.OnRMButtonPressed },
+                { (uint)WM.RBUTTONUP, this.OnRMButtonReleased },
+                { (uint)WM.XBUTTONDOWN, this.OnXMButtonPressed },
+                { (uint)WM.XBUTTONUP, this.OnXMButtonReleased },
+                { (uint)WM.MOUSEWHEEL, this.OnMouseWheel },
             };
 
             _messageHooks = new ReadOnlyDictionary<uint, MessageHandler.HandleMessage>(dict);
@@ -141,7 +138,8 @@ namespace PgrPcClientService
             return 0;
         }
 
-        private nint OnKeyPressed(nint hWnd, nint wParam, nint lParam) => this.KeyMessage(WM.KEYDOWN, wParam, lParam);
+        private nint OnKeyPressed(nint hWnd, nint wParam, nint lParam) =>
+            _messageFaker.KeyMessage(true, wParam, lParam);
 
         private nint OnKeyReleased(nint hWnd, nint wParam, nint lParam)
         {
@@ -157,7 +155,7 @@ namespace PgrPcClientService
                     return 0;
                 }
                 default:
-                    return this.KeyMessage(WM.KEYUP, wParam, lParam);
+                    return _messageFaker.KeyMessage(false, wParam, lParam);
             }
         }
 
@@ -165,8 +163,8 @@ namespace PgrPcClientService
         {
             const int PADDING = 1;
 
-            var xPos = GET_X_LPARAM((int) lParam);
-            var yPos = GET_Y_LPARAM((int) lParam);
+            var xPos = GET_X_LPARAM((int)lParam);
+            var yPos = GET_Y_LPARAM((int)lParam);
 
             if(xPos == _screenWidth - PADDING)
             {
@@ -185,80 +183,49 @@ namespace PgrPcClientService
             if(!_mouseFaker.IsCameraModeOn)
             {
                 // TODO - Be able to drag
-                _mouseFaker.Click(GET_X_LPARAM((int) lParam), GET_Y_LPARAM((int) lParam));
+                _mouseFaker.Click(GET_X_LPARAM((int)lParam), GET_Y_LPARAM((int)lParam));
 
                 return 0;
             }
 
-            return this.FakeVirtualKeyMessage((int) VK.LBUTTON, WM.KEYDOWN);
+            return _messageFaker.VirtualKeyMessage((int)VK.LBUTTON, true);
         }
 
         private nint OnLMButtonReleased(nint hWnd, nint wParam, nint lParam) =>
-            this.FakeVirtualKeyMessage((int) VK.LBUTTON, WM.KEYUP);
+            _messageFaker.VirtualKeyMessage((int)VK.LBUTTON, false);
 
         private nint OnRMButtonPressed(nint hWnd, nint wParam, nint lParam) =>
-            this.FakeVirtualKeyMessage((int) VK.RBUTTON, WM.KEYDOWN);
+            _messageFaker.VirtualKeyMessage((int)VK.RBUTTON, true);
 
         private nint OnRMButtonReleased(nint hWnd, nint wParam, nint lParam) =>
-            this.FakeVirtualKeyMessage((int) VK.RBUTTON, WM.KEYUP);
+            _messageFaker.VirtualKeyMessage((int)VK.RBUTTON, false);
 
         private nint OnXMButtonPressed(nint hWnd, nint wParam, nint lParam)
         {
             var vK = GetXButtonVirtualKey(wParam);
 
-            return this.FakeVirtualKeyMessage(vK, WM.KEYDOWN);
+            return _messageFaker.VirtualKeyMessage(vK, true);
         }
 
         private nint OnXMButtonReleased(nint hWnd, nint wParam, nint lParam)
         {
             var vK = GetXButtonVirtualKey(wParam);
 
-            return this.FakeVirtualKeyMessage(vK, WM.KEYUP);
+            return _messageFaker.VirtualKeyMessage(vK, false);
         }
 
         private nint OnMouseWheel(nint hWnd, nint wParam, nint lParam)
         {
             if(IsMWheelGoingUp(wParam))
             {
-                this.FakeVirtualKeyMessage(VK_MWHEELUP, WM.KEYDOWN);
+                _messageFaker.VirtualKeyMessage(VK_MWHEELUP, true);
 
-                return this.FakeVirtualKeyMessage(VK_MWHEELUP, WM.KEYUP);
+                return _messageFaker.VirtualKeyMessage(VK_MWHEELUP, false);
             }
 
-            this.FakeVirtualKeyMessage(VK_MWHEELDOWN, WM.KEYDOWN);
+            _messageFaker.VirtualKeyMessage(VK_MWHEELDOWN, true);
 
-            return this.FakeVirtualKeyMessage(VK_MWHEELDOWN, WM.KEYUP);
-        }
-        #endregion
-
-        // TODO - Move private methods to their own class
-
-        #region Private Methods
-        private nint KeyMessage(WM wM, nint wParam, nint lParam)
-        {
-            var message = (uint) wM;
-
-            return _binds.ContainsKey(wParam)
-                ? this.FakeVirtualKeyMessage(wParam, wM)
-                : SendMessage(_pgrAppHWnd, message, wParam, lParam);
-        }
-
-        private nint FakeVirtualKeyMessage(nint vK, WM wM)
-        {
-            var message = (uint) wM;
-
-            if(_binds.TryGetValue(vK, out var value))
-            {
-                var scanCode = MapVirtualKeyExA((uint) value, (uint) MAPVK.VK_TO_VSC, _currrentKeyboardLayout);
-
-                var newLParam = FakeKeyLParam(scanCode, wM == WM.KEYDOWN);
-            #if DEBUG
-                Console.WriteLine($"VK: {vK} -> {value}, lParam: {newLParam}");
-            #endif
-                SendMessage(_pgrAppHWnd, message, value, newLParam);
-            }
-
-            return 0;
+            return _messageFaker.VirtualKeyMessage(VK_MWHEELDOWN, false);
         }
         #endregion
 
@@ -280,7 +247,7 @@ namespace PgrPcClientService
                 0x00080000,
                 appClassName,
                 null,
-                (uint) (WS.VISIBLE | WS.MAXIMIZE | WS.POPUP),
+                (uint)(WS.VISIBLE | WS.MAXIMIZE | WS.POPUP),
                 0,
                 0,
                 0,
@@ -291,7 +258,7 @@ namespace PgrPcClientService
                 IntPtr.Zero
             );
 
-            SetLayeredWindowAttributes(cHWnd, (uint) RGB(255, 255, 255), 255, 1);
+            SetLayeredWindowAttributes(cHWnd, (uint)RGB(255, 255, 255), 255, 1);
 
             PAINTSTRUCT ps = new();
             var hdc = BeginPaint(cHWnd, ps);
@@ -323,25 +290,15 @@ namespace PgrPcClientService
 
             if(Enum.IsDefined(typeof(VK), str))
             {
-                return(nint) (uint) Enum.Parse(typeof(VK), str, true);
+                return(nint)(uint)Enum.Parse(typeof(VK), str, true);
             }
 
             return char.Parse(str);
         }
 
-        private static int GetXButtonVirtualKey(nint wParam) => (int) VK.MBUTTON + HIWORD(wParam);
+        private static int GetXButtonVirtualKey(nint wParam) => (int)VK.MBUTTON + HIWORD(wParam);
 
-        private static bool IsMWheelGoingUp(nint wParam) => (short) HIWORD(wParam) > 0;
-
-        private static nint FakeKeyLParam(nint scanCode, bool isKeyDown)
-        {
-            const int repeat = 1;
-
-            var scancode = (int) scanCode << 16;
-            var downOrUpFlag = isKeyDown ? 0 : 3 << 30;
-
-            return repeat + scancode + downOrUpFlag;
-        }
+        private static bool IsMWheelGoingUp(nint wParam) => (short)HIWORD(wParam) > 0;
         #endregion
     }
 }

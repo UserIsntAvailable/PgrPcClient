@@ -1,14 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using WindowsAppOverlay;
 using AdbMouseFaker;
 using Microsoft.Extensions.Configuration;
 using PgrPcClientService;
 using SharpAdbClient;
+using Win32Api;
+using WindowsAppOverlay;
 using static Win32Api.Mouse;
 using static Win32Api.Window;
-using IConfigurationParser = WindowsAppOverlay.IConfigurationParser;
+using ConfigurationParser = PgrPcClientService.ConfigurationParser;
 
 // TODO - Organize the appsettings.json better
 // TODO - Create a better 'background service'
@@ -31,8 +32,14 @@ while(true)
         SendEventWrapper sendEventWrapper = new(new AdbClient(), deviceName, endPoint);
         MouseFaker mouseFaker = new(sendEventWrapper, new WindowsMouseInfoProvider(), deviceInput);
 
-        PgrPcClientService.IConfigurationParser configParser = new PgrPcClientService.ConfigurationParser();
-        PGRMessageHandler pgrMessageHandler = new(mouseFaker, config, configParser.GetBinds(config));
+        ConfigurationParser configParser = new();
+        var messageFaker = new WindowsMessageFaker(
+            nint.Parse(config["PgrAppHWnd"]),
+            configParser.GetBinds(config),
+            Message.SendMessage
+        );
+
+        PGRMessageHandler pgrMessageHandler = new(mouseFaker, messageFaker, config);
         AppOverlay overlay = new(pgrMessageHandler, config["AppClassName"]);
         overlay.Run();
     }
@@ -40,10 +47,9 @@ while(true)
 
 static IConfiguration SetupConfig(nint pgrHandle)
 {
-    return new ConfigurationBuilder().AddJsonFile("appsettings.json")
-                                     .AddInMemoryCollection(
-                                         new[] {new KeyValuePair<string, string>("PgrAppHWnd", pgrHandle.ToString()),}
-                                     ).Build();
+    return new ConfigurationBuilder().AddJsonFile("appsettings.json").AddInMemoryCollection(
+        new[] { new KeyValuePair<string, string>("PgrAppHWnd", pgrHandle.ToString()), }
+    ).Build();
 }
 
 class WindowsMouseInfoProvider : IMouseInfoProvider
