@@ -11,9 +11,12 @@ using static Win32Api.Mouse;
 using static Win32Api.Window;
 using ConfigurationParser = PgrPcClientService.ConfigurationParser;
 
-// TODO - Organize the appsettings.json better
-// TODO - Create a better 'background service'
-// TODO - Create an ADB server if not started
+/*
+ * TODO - Organize the appsettings.json better
+ * TODO - Implement auto reloading of the appsettings.json
+ * TODO - Create a better 'background service'
+ * TODO - Create an ADB server if not started
+ */
 while(true)
 {
     // Using MuMu CN, it should work with other Emulators, just find the Window name that is handling the emulator
@@ -33,14 +36,14 @@ while(true)
         MouseFaker mouseFaker = new(sendEventWrapper, new WindowsMouseInfoProvider(), deviceInput);
 
         ConfigurationParser configParser = new();
-        var messageFaker = new WindowsMessageFaker(
+        WindowsMessageFaker messageFaker = new(
             nint.Parse(config["PgrAppHWnd"]),
             configParser.GetBinds(config),
             Message.SendMessage
         );
-
-        PGRMessageHandler pgrMessageHandler = new(mouseFaker, messageFaker, config);
-        AppOverlay overlay = new(pgrMessageHandler, config["AppClassName"]);
+        
+        MessageHandler messageHandler = new();
+        AppOverlay overlay = new(messageHandler, config["AppClassName"]);
         overlay.Run();
     }
 }
