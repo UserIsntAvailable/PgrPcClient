@@ -41,8 +41,10 @@ while(true)
             configParser.GetBinds(config),
             Message.SendMessage
         );
-        
+
         MessageHandler messageHandler = new();
+        // I'm not sure if I wanna keep this as a 'class'; there should be a better alternative. 
+        new HandleMessageMapper(messageHandler, messageFaker, mouseFaker);
         AppOverlay overlay = new(messageHandler, config["AppClassName"]);
         overlay.Run();
     }
