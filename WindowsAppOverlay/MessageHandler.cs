@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using static Win32Api.Message;
 
 namespace WindowsAppOverlay
@@ -10,7 +9,7 @@ namespace WindowsAppOverlay
         
         // TODO - Create constructor that accepts an IConfiguration
         
-        private readonly ReadOnlyDictionary<uint, HandleMessage> _messageHooks;
+        private readonly Dictionary<uint, HandleMessage> _messageHooks;
 
         public MessageHandler()
             : this(CreateDefaultDictionary())
@@ -19,19 +18,24 @@ namespace WindowsAppOverlay
 
         public MessageHandler(IDictionary<uint, HandleMessage> messageHooks)
         {
-            _messageHooks = new ReadOnlyDictionary<uint, HandleMessage>(messageHooks);
+            _messageHooks = new Dictionary<uint, HandleMessage>(messageHooks);
         }
 
-        public bool TryGetMessageDelegate(uint message, out HandleMessage @delegate)
+        public void Map(uint message, HandleMessage messageHandlerDelegate)
+        {
+            _messageHooks[message] = messageHandlerDelegate;
+        }
+
+        public bool TryGetMessageDelegate(uint message, out HandleMessage messageHandlerDelegate)
         {
             if(_messageHooks.TryGetValue(message, out var handleMessage))
             {
-                @delegate = handleMessage;
+                messageHandlerDelegate = handleMessage;
 
                 return true;
             }
 
-            @delegate = null;
+            messageHandlerDelegate = null;
 
             return false;
         }

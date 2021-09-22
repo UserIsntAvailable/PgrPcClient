@@ -2,6 +2,8 @@
 {
     public interface IMessageHandler
     {
-        public bool TryGetMessageDelegate(uint message, out MessageHandler.HandleMessage @delegate);
+        public void Map(uint message, MessageHandler.HandleMessage messageHandlerDelegate);
+        
+        public bool TryGetMessageDelegate(uint message, out MessageHandler.HandleMessage messageHandlerDelegate);
     }
 }
