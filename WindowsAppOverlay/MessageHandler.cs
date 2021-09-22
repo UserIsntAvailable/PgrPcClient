@@ -21,6 +21,11 @@ namespace WindowsAppOverlay
             _messageHooks = new Dictionary<uint, HandleMessage>(messageHooks);
         }
 
+        public void Map(WM wM, HandleMessage messageHandlerDelegate)
+        {
+            this.Map((uint)wM, messageHandlerDelegate);
+        }
+
         public void Map(uint message, HandleMessage messageHandlerDelegate)
         {
             _messageHooks[message] = messageHandlerDelegate;
