@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 
-namespace PgrPcClientService
+namespace PgrPcClient
 {
     public interface IConfigurationParser
     {

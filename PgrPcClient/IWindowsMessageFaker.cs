@@ -1,7 +1,7 @@
 ﻿using System;
 using static Win32Api.Message;
 
-namespace PgrPcClientService
+namespace PgrPcClient
 {
     public interface IWindowsMessageFaker
     {

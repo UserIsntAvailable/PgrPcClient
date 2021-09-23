@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PgrPcClientService", "PgrPcClientService\PgrPcClientService.csproj", "{75E24D27-22F2-4A08-AD12-B8993F2452D2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PgrPcClient", "PgrPcClient\PgrPcClient.csproj", "{75E24D27-22F2-4A08-AD12-B8993F2452D2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdbMouseFaker", "AdbMouseFaker\AdbMouseFaker.csproj", "{E2EB5755-37B8-4C49-AC5D-B6D30E9C1049}"
 EndProject
@@ -10,7 +10,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsAppOverlay", "Window
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsAppOverlay.Unit.Tests", "WindowsAppOverlay.Unit.Tests\WindowsAppOverlay.Unit.Tests.csproj", "{9DD13EFE-B2E3-4DC3-8EB4-4C6142D024A9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PgrPcClientService.Unit.Tests", "PgrPcClientService.Unit.Tests\PgrPcClientService.Unit.Tests.csproj", "{300ECB92-ECB1-483A-AC78-EA62003BB651}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PgrPcClient.Unit.Tests", "PgrPcClient.Unit.Tests\PgrPcClient.Unit.Tests.csproj", "{300ECB92-ECB1-483A-AC78-EA62003BB651}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

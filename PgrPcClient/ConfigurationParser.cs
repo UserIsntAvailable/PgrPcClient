@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using Microsoft.Extensions.Configuration;
-using PgrPcClientService.Extensions;
+using PgrPcClient.Extensions;
 using Win32Api;
 
-namespace PgrPcClientService
+namespace PgrPcClient
 {
     public class ConfigurationParser : IConfigurationParser
     {

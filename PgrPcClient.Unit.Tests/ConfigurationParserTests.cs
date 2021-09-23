@@ -1,4 +1,5 @@
 using FluentAssertions;
+using PgrPcClient;
 using Xunit;
 
 namespace PgrPcClientService.Unit.Tests

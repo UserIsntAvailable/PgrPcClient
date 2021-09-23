@@ -5,7 +5,7 @@ using Xunit;
 using static Win32Api.Message;
 
 #if WINDOWS
-namespace PgrPcClientService.Unit.Tests
+namespace PgrPcClient.Unit.Tests
 {
     public class WindowsMessageFakerTests
     {

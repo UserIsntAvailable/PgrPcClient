@@ -3,13 +3,13 @@ using System.Linq;
 using System.Net;
 using AdbMouseFaker;
 using Microsoft.Extensions.Configuration;
-using PgrPcClientService;
+using PgrPcClient;
 using SharpAdbClient;
 using Win32Api;
 using WindowsAppOverlay;
 using static Win32Api.Mouse;
 using static Win32Api.Window;
-using ConfigurationParser = PgrPcClientService.ConfigurationParser;
+using ConfigurationParser = PgrPcClient.ConfigurationParser;
 
 /*
  * TODO - Organize the appsettings.json better

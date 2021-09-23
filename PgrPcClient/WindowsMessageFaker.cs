@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using static Win32Api.Message;
 using static Win32Api.Keyboard;
 
-namespace PgrPcClientService
+namespace PgrPcClient
 {
     public class WindowsMessageFaker : IWindowsMessageFaker
     {

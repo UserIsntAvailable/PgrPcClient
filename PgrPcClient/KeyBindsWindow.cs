@@ -6,7 +6,7 @@ using static Win32Api.Window;
 using static Win32Api.WinGdi;
 using static Win32Api.Macros;
 
-namespace PgrPcClientService
+namespace PgrPcClient
 {
     public static class KeyBindsWindow
     {

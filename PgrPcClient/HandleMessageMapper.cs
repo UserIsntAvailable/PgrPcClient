@@ -9,7 +9,7 @@ using static Win32Api.Macros;
 // ReSharper disable IdentifierTypo
 // ReSharper disable MemberCanBePrivate.Global
 
-namespace PgrPcClientService
+namespace PgrPcClient
 {
     /*
      * TODO - Focus overlay when PGR is opened
