@@ -144,6 +144,12 @@ namespace Win32Api
         [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Ansi)]
         public static extern short RegisterClassExA(ref WNDCLASSEX lpwcx);
 
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        public static extern int GetClassName(nint hWnd, char[] lpClassName, int nMaxCount);
+
+        [DllImport("user32.dll")]
+        public static extern bool GetClassInfoExW(nint hInstance, string lpszClass, out WNDCLASSEX lpwcz);
+
         [DllImport("user32.dll")]
         public static extern int GetWindowLongA(nint bShow, int nIndex);
 
