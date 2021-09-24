@@ -22,8 +22,8 @@ namespace PgrPcClient
 
             Dictionary<nint, nint> binds = new();
 
-            var gKbSection = config.GetSection("GameBindings");
-            var oBSectionChildren = config.GetSection("OverlayBindings").GetChildren();
+            var gKbSection = config.GetSection("GameInfo:Bindings");
+            var oBSectionChildren = config.GetSection("OverlayInfo:Bindings").GetChildren();
 
             foreach(var child in oBSectionChildren)
             {

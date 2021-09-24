@@ -12,14 +12,18 @@ using static Win32Api.Window;
 using ConfigurationParser = PgrPcClient.ConfigurationParser;
 
 /*
- * TODO - Organize the appsettings.json better
+ * TODO - Find and parse IN-GAME config files of PGR. 
  * TODO - Implement auto reloading of the appsettings.json
  * TODO - Create a better 'background service'
  * TODO - Create an ADB server if not started
  */
 while(true)
 {
-    // Using MuMu CN, it should work with other Emulators, just find the Window name that is handling the emulator
+    /*
+     * Using MuMu CN, it should work with other Emulators,
+     * just find the Window name that is handling the emulator
+     * and don't forget to modify EmulatorInfo in the appsettings.json
+     */
     var pgrHandle = FindWindowsWithText("PGR - Netease Emulator").FirstOrDefault();
 
     if(pgrHandle != 0)
@@ -53,7 +57,7 @@ while(true)
 static IConfiguration SetupConfig(nint pgrHandle)
 {
     return new ConfigurationBuilder().AddJsonFile("appsettings.json").AddInMemoryCollection(
-        new[] { new KeyValuePair<string, string>("PgrAppHWnd", pgrHandle.ToString()), }
+        new[] {new KeyValuePair<string, string>("PgrAppHWnd", pgrHandle.ToString()),}
     ).Build();
 }
 

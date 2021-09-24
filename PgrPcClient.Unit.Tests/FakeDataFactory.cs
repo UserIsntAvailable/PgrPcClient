@@ -12,10 +12,10 @@ namespace PgrPcClientService.Unit.Tests
             var config = new ConfigurationBuilder().AddInMemoryCollection(
                 new[]
                 {
-                    new KeyValuePair<string, string>("GameBindings:ATK", "LBUTTON"),
-                    new KeyValuePair<string, string>("GameBindings:Jump", "SPACE"),
-                    new KeyValuePair<string, string>("OverlayBindings:SPACE", "0x0E"),
-                    new KeyValuePair<string, string>("OverlayBindings:RBUTTON", "ATK"),
+                    new KeyValuePair<string, string>("GameInfo:Bindings:ATK", "LBUTTON"),
+                    new KeyValuePair<string, string>("GameInfo:Bindings:Jump", "SPACE"),
+                    new KeyValuePair<string, string>("OverlayInfo:Bindings:SPACE", "0x0E"),
+                    new KeyValuePair<string, string>("OverlayInfo:Bindings:RBUTTON", "ATK"),
                 }
             ).Build();
 
