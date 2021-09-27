@@ -30,10 +30,10 @@ while(true)
     {
         var config = SetupConfig(pgrHandle);
 
-        var host = config["DeviceHost"];
-        var port = int.Parse(config["DevicePort"]);
+        var host = config["EmulatorInfo:DeviceHost"];
+        var port = int.Parse(config["EmulatorInfo:DevicePort"]);
         var deviceName = $"{host}:{port}";
-        var deviceInput = config["DeviceInput"];
+        var deviceInput = config["EmulatorInfo:DeviceInput"];
 
         DnsEndPoint endPoint = new(host, port);
         SendEventWrapper sendEventWrapper = new(new AdbClient(), deviceName, endPoint);
@@ -49,7 +49,7 @@ while(true)
         MessageHandler messageHandler = new();
         // I'm not sure if I wanna keep this as a 'class'; there should be a better alternative. 
         new HandleMessageMapper(messageHandler, messageFaker, mouseFaker);
-        AppOverlay overlay = new(messageHandler, config["AppClassName"]);
+        AppOverlay overlay = new(messageHandler, config["OverlayInfo:AppClassName"]);
         overlay.Run();
     }
 }
