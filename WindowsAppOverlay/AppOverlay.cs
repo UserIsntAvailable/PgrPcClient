@@ -65,7 +65,7 @@ namespace WindowsAppOverlay
 
             var wNdclass = new WNDCLASSEX
             {
-                style = 0x8,
+                style = 0,
                 cbSize = (uint) Marshal.SizeOf<WNDCLASSEX>(),
                 lpfnWndProc = WndProcDelegate,
                 cbClsExtra = 0,
