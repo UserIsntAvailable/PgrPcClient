@@ -12,10 +12,9 @@ namespace PgrPcClient
     {
         /*
          * TODO - Move CreateKeymapsHelperWindow to its own class
-         * TODO - Fix Anti Aliasing of text
          * TODO - Be able to configure parameters of DrawString ( Font, Color, etc )
          */
-        public static nint CreateKeyBindsChildWindow(
+        public static void CreateKeyBindsChildWindow(
             nint parentHWnd,
             IEnumerable<string> keysToDraw,
             (int X, int Y) startPosition,
@@ -25,7 +24,7 @@ namespace PgrPcClient
                 0x00080000,
                 RegisterChildWndClass(parentHWnd),
                 null,
-                (uint) (WS.VISIBLE | WS.MAXIMIZE | WS.POPUP),
+                (uint)(WS.VISIBLE | WS.MAXIMIZE | WS.POPUP),
                 0,
                 0,
                 0,
@@ -36,22 +35,18 @@ namespace PgrPcClient
                 IntPtr.Zero
             );
 
-            SetLayeredWindowAttributes(cHWnd, (uint) RGB(255, 255, 255), 255, 1);
+            SetLayeredWindowAttributes(cHWnd, (uint)RGB(0, 0, 0), 255, 1);
 
             DrawKeyBinds(cHWnd, keysToDraw, startPosition, padding);
-            
-            return cHWnd;
 
             static string RegisterChildWndClass(nint parentHWnd)
             {
-                var parentWndClassEx = GetParentWindowClassInfo(parentHWnd);
+                var parentLpszClassName = GetParentWindowClassName(parentHWnd);
+                var childLpszClassName = $"child:{parentLpszClassName}";
 
-                var childLpszClassName = $"child:{parentWndClassEx.lpszClassName}";
+                var wNdclass = new WNDCLASSEX(childLpszClassName, hbrBackground: 2);
 
-                parentWndClassEx.lpszClassName = childLpszClassName;
-                parentWndClassEx.lpfnWndProc = DefWindowProc;
-
-                if(RegisterClassExA(ref parentWndClassEx) == 0)
+                if(RegisterClassExA(ref wNdclass) == 0)
                 {
                     throw new Exception("RegisterClassExA failed.");
                 }
@@ -86,7 +81,7 @@ namespace PgrPcClient
                 EndPaint(hdc, ref ps);
             }
 
-            static WNDCLASSEX GetParentWindowClassInfo(nint parentHWnd)
+            static string GetParentWindowClassName(nint parentHWnd)
             {
                 const int maxLpszClassNameLength = 256;
 
@@ -99,16 +94,13 @@ namespace PgrPcClient
                     throw new Exception("GetClassName failed.");
                 }
 
-                var lpszClassName = string.Concat(sharedArray);
+                var lpszClassName = string.Concat(sharedArray)
+                                          // Remove extra NULL characters
+                                          .Replace("\0", "");
 
                 arrayPool.Return(sharedArray);
 
-                if(!GetClassInfoExW(0, lpszClassName, out var lpwcz))
-                {
-                    throw new Exception("GetClassInfoExW failed.");
-                }
-
-                return lpwcz;
+                return lpszClassName;
             }
         }
     }
