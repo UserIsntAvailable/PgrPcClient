@@ -2,6 +2,7 @@
 using System.Buffers;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using static Win32Api.Resources;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable IdentifierTypo
@@ -182,6 +183,35 @@ namespace Win32Api
         [StructLayout(LayoutKind.Sequential)]
         public struct WNDCLASSEX
         {
+            public WNDCLASSEX(
+                string lpszClassName,
+                uint style = 0,
+                WndProc lpfnWndProc = null,
+                int cbClsExtra = 0,
+                int cbWndExtra = 0,
+                nint hInstance = 0,
+                nint hIcon = 0,
+                nint hCursor = 0,
+                nint hbrBackground = 0,
+                string lpszMenuName = null,
+                nint hIconSm = 0)
+            {
+                const int defaultResourceName = 32512;
+                
+                this.cbSize = (uint)Marshal.SizeOf<WNDCLASSEX>();
+                this.style = style;
+                this.lpfnWndProc = lpfnWndProc ?? DefWindowProc;
+                this.cbClsExtra = cbClsExtra;
+                this.cbWndExtra = cbWndExtra;
+                this.hInstance = hInstance;
+                this.hIcon = hIcon == 0 ? LoadIconA(IntPtr.Zero, defaultResourceName) : hIcon;
+                this.hCursor = hCursor == 0 ? LoadCursorA(IntPtr.Zero, defaultResourceName) : hCursor;
+                this.hbrBackground = hbrBackground;
+                this.lpszMenuName = lpszMenuName;
+                this.lpszClassName = lpszClassName;
+                this.hIconSm = hIconSm;
+            }
+
             public uint cbSize;
             public uint style;
             [MarshalAs(UnmanagedType.FunctionPtr)]

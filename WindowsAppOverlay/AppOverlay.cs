@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 using static Win32Api.Window;
 using static Win32Api.Error;
 using static Win32Api.Message;
-using static Win32Api.Resources;
 
 namespace WindowsAppOverlay
 {
@@ -43,7 +41,7 @@ namespace WindowsAppOverlay
                 0x00080000,
                 className,
                 null,
-                (uint) (WS.VISIBLE | WS.MAXIMIZE | WS.POPUP),
+                (uint)(WS.VISIBLE | WS.MAXIMIZE | WS.POPUP),
                 useDefault,
                 useDefault,
                 useDefault,
@@ -61,22 +59,11 @@ namespace WindowsAppOverlay
 
         private static bool RegisterClass(string className)
         {
-            const int defaultResourceName = 32512;
-
-            var wNdclass = new WNDCLASSEX
-            {
-                style = 0,
-                cbSize = (uint) Marshal.SizeOf<WNDCLASSEX>(),
-                lpfnWndProc = WndProcDelegate,
-                cbClsExtra = 0,
-                cbWndExtra = 0,
-                hIcon = LoadIconA(IntPtr.Zero, defaultResourceName),
-                hCursor = LoadCursorA(IntPtr.Zero, defaultResourceName),
-                hIconSm = IntPtr.Zero,
-                hbrBackground = new IntPtr(6),
-                lpszMenuName = null,
-                lpszClassName = className,
-            };
+            var wNdclass = new WNDCLASSEX(
+                className,
+                lpfnWndProc: WndProcDelegate,
+                hbrBackground: new IntPtr(6)
+            );
 
             if(RegisterClassExA(ref wNdclass) != 0) return true;
 
