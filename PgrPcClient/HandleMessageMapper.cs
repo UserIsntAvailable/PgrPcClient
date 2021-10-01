@@ -26,6 +26,8 @@ namespace PgrPcClient
         private readonly int _screenWidth = GetSystemMetrics(0);
         private readonly int _screenHeight = GetSystemMetrics(1);
 
+        private bool _isMouseFakerDragging;
+
         public HandleMessageMapper(
             IMessageHandler messageHandler,
             IWindowsMessageFaker messageFaker,
@@ -33,6 +35,7 @@ namespace PgrPcClient
         {
             _messageFaker = messageFaker;
             _mouseFaker = mouseFaker;
+            _isMouseFakerDragging = _mouseFaker.IsDragging;
 
             // TODO - Map the helper window ( Removing it for now, until I refactor it )
             messageHandler.Map(WM.DESTROY, this.OnDestroy);
@@ -67,9 +70,10 @@ namespace PgrPcClient
                 // TODO - Set CameraMode to true automatically when entering a stage
                 case'R':
                 {
-                    ShowCursor(_mouseFaker.IsDragging);
+                    ShowCursor(_isMouseFakerDragging);
                     SetCursorPos(_screenWidth / 2, _screenHeight / 2);
-                    _mouseFaker.IsDragging = !_mouseFaker.IsDragging;
+                    _isMouseFakerDragging = !_isMouseFakerDragging;
+                    _mouseFaker.IsDragging = _isMouseFakerDragging;
 
                     return 0;
                 }
@@ -99,10 +103,9 @@ namespace PgrPcClient
 
         internal nint OnLMButtonDown(nint hWnd, nint wParam, nint lParam)
         {
-            if(!_mouseFaker.IsDragging)
+            if(!_isMouseFakerDragging)
             {
-                // TODO - Be able to drag
-                _mouseFaker.Click(GET_X_LPARAM((int)lParam), GET_Y_LPARAM((int)lParam));
+                _mouseFaker.IsDragging = !_isMouseFakerDragging;
 
                 return 0;
             }
@@ -110,8 +113,17 @@ namespace PgrPcClient
             return _messageFaker.VirtualKeyMessage((int)VK.LBUTTON, true);
         }
 
-        internal nint OnLMButtonUp(nint hWnd, nint wParam, nint lParam) =>
-            _messageFaker.VirtualKeyMessage((int)VK.LBUTTON, false);
+        internal nint OnLMButtonUp(nint hWnd, nint wParam, nint lParam)
+        {
+            if(!_isMouseFakerDragging)
+            {
+                _mouseFaker.IsDragging = _isMouseFakerDragging;
+                
+                return 0;
+            }
+
+            return _messageFaker.VirtualKeyMessage((int)VK.LBUTTON, false);
+        }
 
         internal nint OnRMButtonDown(nint hWnd, nint wParam, nint lParam) =>
             _messageFaker.VirtualKeyMessage((int)VK.RBUTTON, true);

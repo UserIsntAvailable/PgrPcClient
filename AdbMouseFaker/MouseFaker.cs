@@ -35,6 +35,9 @@ namespace AdbMouseFaker
             this.CreateDraggingModeThread();
         }
 
+        /* BUG - IsDragging releases the mouse cursor before the cursor is in the last position.
+         *       That breaks the cursor and the cursor never releases.
+         */
         public bool IsDragging
         {
             get => _isDragging;
