@@ -14,7 +14,7 @@ namespace PgrPcClient
          * TODO - Move CreateKeymapsHelperWindow to its own class
          * TODO - Be able to configure parameters of DrawString ( Font, Color, etc )
          */
-        public static void CreateKeyBindsChildWindow(
+        public static unsafe void CreateKeyBindsChildWindow(
             nint parentHWnd,
             IEnumerable<string> keysToDraw,
             (int X, int Y) startPosition,

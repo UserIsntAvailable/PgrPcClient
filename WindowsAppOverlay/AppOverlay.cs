@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using static Win32Api.Window;
 using static Win32Api.Error;
 using static Win32Api.Message;
@@ -9,9 +10,8 @@ namespace WindowsAppOverlay
     {
         private static IMessageHandler _messageHandler;
 
-        private static readonly WndProc WndProcDelegate = WndProc;
         /// <summary>
-        ///     This app handler pointer
+        /// This app handler pointer
         /// </summary>
         private nint _hWnd;
 
@@ -27,7 +27,7 @@ namespace WindowsAppOverlay
 
         public void Run()
         {
-            while(GetMessage(out var msg, IntPtr.Zero, 0, 0) > 0)
+            while(GetMessage(out var msg, 0, 0, 0) > 0)
             {
                 TranslateMessage(ref msg);
                 DispatchMessage(ref msg);
@@ -57,12 +57,12 @@ namespace WindowsAppOverlay
             return _hWnd != IntPtr.Zero;
         }
 
-        private static bool RegisterClass(string className)
+        private static unsafe bool RegisterClass(string className)
         {
             var wNdclass = new WNDCLASSEX(
                 className,
-                lpfnWndProc: WndProcDelegate,
-                hbrBackground: new IntPtr(6)
+                lpfnWndProc: &WndProc,
+                hbrBackground: 6
             );
 
             if(RegisterClassExA(ref wNdclass) != 0) return true;
@@ -71,7 +71,8 @@ namespace WindowsAppOverlay
 
             return false;
         }
-
+        
+        [UnmanagedCallersOnly]
         private static nint WndProc(nint hWnd, uint message, nint wParam, nint lParam) =>
             _messageHandler.TryGetMessageDelegate(message, out var handleMessage)
                 ? handleMessage(hWnd, wParam, lParam)

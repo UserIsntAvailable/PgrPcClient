@@ -12,8 +12,6 @@ namespace Win32Api
     public static class Window
     {
         #region Delegates
-        public delegate nint WndProc(nint hWnd, uint msg, nint wParam, nint lParam);
-
         public delegate bool EnumWindowsProc(nint hWnd, nint lParam);
         #endregion
 
@@ -181,12 +179,12 @@ namespace Win32Api
 
         #region Structures
         [StructLayout(LayoutKind.Sequential)]
-        public struct WNDCLASSEX
+        public unsafe struct WNDCLASSEX
         {
             public WNDCLASSEX(
                 string lpszClassName,
                 uint style = 0,
-                WndProc lpfnWndProc = null,
+                delegate* unmanaged<nint, uint, nint, nint, nint> lpfnWndProc = null,
                 int cbClsExtra = 0,
                 int cbWndExtra = 0,
                 nint hInstance = 0,
@@ -200,7 +198,7 @@ namespace Win32Api
                 
                 this.cbSize = (uint)Marshal.SizeOf<WNDCLASSEX>();
                 this.style = style;
-                this.lpfnWndProc = lpfnWndProc ?? DefWindowProc;
+                this.lpfnWndProc = lpfnWndProc == null ? &UmmanagedDefWindowProc : lpfnWndProc;
                 this.cbClsExtra = cbClsExtra;
                 this.cbWndExtra = cbWndExtra;
                 this.hInstance = hInstance;
@@ -210,12 +208,15 @@ namespace Win32Api
                 this.lpszMenuName = lpszMenuName;
                 this.lpszClassName = lpszClassName;
                 this.hIconSm = hIconSm;
+
+                [UnmanagedCallersOnly]
+                static nint UmmanagedDefWindowProc(nint hWnd, uint msg, nint wParam, nint lParam) =>
+                    DefWindowProc(hWnd, msg, wParam, lParam);
             }
 
             public uint cbSize;
             public uint style;
-            [MarshalAs(UnmanagedType.FunctionPtr)]
-            public WndProc lpfnWndProc;
+            public delegate* unmanaged<nint, uint, nint, nint, nint> lpfnWndProc;
             public int cbClsExtra;
             public int cbWndExtra;
             public nint hInstance;
