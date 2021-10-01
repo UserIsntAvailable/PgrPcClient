@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 
 namespace AdbMouseFaker
 {
@@ -20,7 +21,7 @@ namespace AdbMouseFaker
         private readonly string _deviceMouseInput;
         private readonly ManualResetEvent _suspendEvent = new(false);
 
-        private bool _isCameraModeOn;
+        private bool _isDragging;
 
         public MouseFaker(
             ISendEventWrapper sendEventWrapper,
@@ -31,44 +32,47 @@ namespace AdbMouseFaker
             _mouseInfoProvider = mouseInfoProvider;
             _deviceMouseInput = deviceMouseInput;
 
-            this.CreateCameraModeThread();
+            this.CreateDraggingModeThread();
         }
 
-        public bool IsCameraModeOn
+        public bool IsDragging
         {
-            get => _isCameraModeOn;
+            get => _isDragging;
             set
             {
                 if(value)
                 {
-                    if(!_isCameraModeOn)
+                    if(!_isDragging)
                     {
                         var (x, y) = _mouseInfoProvider.GetMousePosition();
-                        
+
                         this.ClipMouse(x, y);
                         _suspendEvent.Set();
                     }
                 }
                 else
                 {
-                    if(_isCameraModeOn)
+                    if(_isDragging)
                     {
                         _suspendEvent.Reset();
                         this.ReleaseMouse();
                     }
                 }
 
-                _isCameraModeOn = value;
+                _isDragging = value;
             }
         }
 
         public void Click(int x, int y)
         {
-            this.ClipMouse(x,y);
+            if(_isDragging)
+                throw new InvalidOperationException($"You can not send a click event while {this.IsDragging} is true.");
+
+            this.ClipMouse(x, y);
             this.ReleaseMouse();
         }
 
-        private void CreateCameraModeThread()
+        private void CreateDraggingModeThread()
         {
             new Thread(
                 () =>
@@ -80,7 +84,7 @@ namespace AdbMouseFaker
                     while(true)
                     {
                         _suspendEvent.WaitOne(Timeout.Infinite);
-
+                        
                         var (x, y) = _mouseInfoProvider.GetMousePosition();
 
                         this.MoveMouse(x, y, lastX, lastY);
@@ -88,10 +92,11 @@ namespace AdbMouseFaker
                         lastX = x;
                         lastY = y;
                     }
+                    // ReSharper disable once FunctionNeverReturns
                 }
             )
             {
-                IsBackground = true, Name = "CameraModeThread",
+                IsBackground = true, Name = "DraggingModeThread",
             }.Start();
         }
 

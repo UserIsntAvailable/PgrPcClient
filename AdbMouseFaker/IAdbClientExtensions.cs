@@ -4,6 +4,7 @@ using SharpAdbClient;
 
 namespace AdbMouseFaker
 {
+    // ReSharper disable once InconsistentNaming
     public static class IAdbClientExtensions
     {
         public static DeviceData ConnectToDevice(this IAdbClient client, string deviceName, DnsEndPoint endPoint)

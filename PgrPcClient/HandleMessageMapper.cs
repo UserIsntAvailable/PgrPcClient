@@ -51,7 +51,7 @@ namespace PgrPcClient
         #region Handle Messages
         internal nint OnDestroy(nint hWnd, nint wParam, nint lParam)
         {
-            _mouseFaker.IsCameraModeOn = false;
+            _mouseFaker.IsDragging = false;
 
             PostQuitMessage(0);
 
@@ -67,9 +67,9 @@ namespace PgrPcClient
                 // TODO - Set CameraMode to true automatically when entering a stage
                 case'R':
                 {
-                    ShowCursor(_mouseFaker.IsCameraModeOn);
+                    ShowCursor(_mouseFaker.IsDragging);
                     SetCursorPos(_screenWidth / 2, _screenHeight / 2);
-                    _mouseFaker.IsCameraModeOn = !_mouseFaker.IsCameraModeOn;
+                    _mouseFaker.IsDragging = !_mouseFaker.IsDragging;
 
                     return 0;
                 }
@@ -99,7 +99,7 @@ namespace PgrPcClient
 
         internal nint OnLMButtonDown(nint hWnd, nint wParam, nint lParam)
         {
-            if(!_mouseFaker.IsCameraModeOn)
+            if(!_mouseFaker.IsDragging)
             {
                 // TODO - Be able to drag
                 _mouseFaker.Click(GET_X_LPARAM((int)lParam), GET_Y_LPARAM((int)lParam));
