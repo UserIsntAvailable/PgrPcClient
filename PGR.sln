@@ -12,6 +12,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsAppOverlay.Unit.Test
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PgrPcClient.Unit.Tests", "PgrPcClient.Unit.Tests\PgrPcClient.Unit.Tests.csproj", "{300ECB92-ECB1-483A-AC78-EA62003BB651}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdbMouseFaker.Unit.Tests", "AdbMouseFaker.Unit.Tests\AdbMouseFaker.Unit.Tests.csproj", "{688B1062-1179-4CBA-A425-1CEB54BB0216}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,5 +44,9 @@ Global
 		{300ECB92-ECB1-483A-AC78-EA62003BB651}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{300ECB92-ECB1-483A-AC78-EA62003BB651}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{300ECB92-ECB1-483A-AC78-EA62003BB651}.Release|Any CPU.Build.0 = Release|Any CPU
+		{688B1062-1179-4CBA-A425-1CEB54BB0216}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{688B1062-1179-4CBA-A425-1CEB54BB0216}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{688B1062-1179-4CBA-A425-1CEB54BB0216}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{688B1062-1179-4CBA-A425-1CEB54BB0216}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
