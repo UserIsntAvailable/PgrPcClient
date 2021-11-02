@@ -20,40 +20,14 @@ namespace AdbMouseFaker.Unit.Tests
         }
 
         [Fact]
-        public void Click_ShouldWorkOnSingleTouch_WhenXAndYAreValid()
-        {
-            var actualX = _fixture.Create<int>();
-            var actualY = _fixture.Create<int>();
-
-            _sut.Click(actualX, actualY);
-
-            Received.InOrder(
-                () =>
-                {
-                    _sendEventWrapper.Send(TEST_DEVICE_MOUSE_INPUT, EV_ABS, ABS_MT_TRACKING_ID, DEFAULT_TRACKING_ID);
-                    _sendEventWrapper.Send(TEST_DEVICE_MOUSE_INPUT, EV_KEY, BTN_TOUCH, 1);
-                    _sendEventWrapper.Send(TEST_DEVICE_MOUSE_INPUT, EV_ABS, ABS_MT_POSITION_X, actualX);
-                    _sendEventWrapper.Send(TEST_DEVICE_MOUSE_INPUT, EV_ABS, ABS_MT_POSITION_Y, actualY);
-                    _sendEventWrapper.Send(TEST_DEVICE_MOUSE_INPUT, EV_SYN, SYN_REPORT, 0);
-                    _sendEventWrapper.Send(TEST_DEVICE_MOUSE_INPUT, EV_ABS, ABS_MT_TRACKING_ID, RELEASE_TRACKING_ID);
-                    _sendEventWrapper.Send(TEST_DEVICE_MOUSE_INPUT, EV_KEY, BTN_TOUCH, 0);
-                    _sendEventWrapper.Send(TEST_DEVICE_MOUSE_INPUT, EV_SYN, SYN_REPORT, 0);
-                }
-            );
-        }
-        
-        [Fact]
         public void IsDragging_ShouldWork_WhenSetToTrueAndBackToFalse()
         {
             var firstActualX = _fixture.Create<int>();
-            var secondActualX = _fixture.Create<int>();
             var firstActualY = _fixture.Create<int>();
+            var secondActualX = _fixture.Create<int>();
             var secondActualY = _fixture.Create<int>();
 
-            _mouseInfoProvider.GetMousePosition().Returns(
-                (firstActualX, firstActualY),
-                (secondActualX, secondActualY)
-            );
+            _mouseInfoProvider.GetMousePosition().Returns((firstActualX, firstActualY), (secondActualX, secondActualY));
 
             _sut.IsDragging = true;
             _sut.IsDragging = false;
@@ -85,11 +59,47 @@ namespace AdbMouseFaker.Unit.Tests
             _sendEventWrapper.ClearReceivedCalls();
             _sut.IsDragging = true;
             _sendEventWrapper.DidNotReceiveWithAnyArgs().Send(default, default, default, default);
-            
+
             _sut.IsDragging = false;
             _sendEventWrapper.ClearReceivedCalls();
             _sut.IsDragging = false;
             _sendEventWrapper.DidNotReceiveWithAnyArgs().Send(default, default, default, default);
+        }
+
+        [Fact]
+        public void IsDragging_ShouldAllowMultiTouch_WhenItIsSetToTrue()
+        {
+            _mouseInfoProvider.GetMousePosition().Returns((_fixture.Create<int>(), _fixture.Create<int>()));
+
+            _sut.IsDragging = true;
+            _sut.Click(_fixture.Create<int>(), _fixture.Create<int>());
+            _sut.IsDragging = false;
+            
+            _sendEventWrapper.Received().Send(TEST_DEVICE_MOUSE_INPUT, EV_ABS, ABS_MT_TRACKING_ID, DEFAULT_TRACKING_ID);
+            _sendEventWrapper.Received().Send(TEST_DEVICE_MOUSE_INPUT, EV_ABS, ABS_MT_TRACKING_ID, DEFAULT_TRACKING_ID + 1);
+        }
+
+        [Fact]
+        public void Click_ShouldWorkOnSingleTouch_WhenXAndYAreValid()
+        {
+            var actualX = _fixture.Create<int>();
+            var actualY = _fixture.Create<int>();
+
+            _sut.Click(actualX, actualY);
+
+            Received.InOrder(
+                () =>
+                {
+                    _sendEventWrapper.Send(TEST_DEVICE_MOUSE_INPUT, EV_ABS, ABS_MT_TRACKING_ID, DEFAULT_TRACKING_ID);
+                    _sendEventWrapper.Send(TEST_DEVICE_MOUSE_INPUT, EV_KEY, BTN_TOUCH, 1);
+                    _sendEventWrapper.Send(TEST_DEVICE_MOUSE_INPUT, EV_ABS, ABS_MT_POSITION_X, actualX);
+                    _sendEventWrapper.Send(TEST_DEVICE_MOUSE_INPUT, EV_ABS, ABS_MT_POSITION_Y, actualY);
+                    _sendEventWrapper.Send(TEST_DEVICE_MOUSE_INPUT, EV_SYN, SYN_REPORT, 0);
+                    _sendEventWrapper.Send(TEST_DEVICE_MOUSE_INPUT, EV_ABS, ABS_MT_TRACKING_ID, RELEASE_TRACKING_ID);
+                    _sendEventWrapper.Send(TEST_DEVICE_MOUSE_INPUT, EV_KEY, BTN_TOUCH, 0);
+                    _sendEventWrapper.Send(TEST_DEVICE_MOUSE_INPUT, EV_SYN, SYN_REPORT, 0);
+                }
+            );
         }
     }
 }

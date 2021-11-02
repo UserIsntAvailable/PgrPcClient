@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using static AdbMouseFaker.SendEventConstant;
 
 namespace AdbMouseFaker
@@ -12,6 +11,7 @@ namespace AdbMouseFaker
         private readonly ManualResetEvent _suspendEvent = new(false);
 
         private bool _isDragging;
+        private int _currentTrackingId = DEFAULT_TRACKING_ID;
 
         public MouseFaker(
             ISendEventWrapper sendEventWrapper,
@@ -58,9 +58,6 @@ namespace AdbMouseFaker
 
         public void Click(int x, int y)
         {
-            if(_isDragging)
-                throw new InvalidOperationException($"You can not send a click event while {this.IsDragging} is true.");
-
             this.ClipMouse(x, y);
             this.ReleaseMouse();
         }
@@ -77,7 +74,7 @@ namespace AdbMouseFaker
                     while(true)
                     {
                         _suspendEvent.WaitOne(Timeout.Infinite);
-                        
+
                         var (x, y) = _mouseInfoProvider.GetMousePosition();
 
                         this.MoveMouse(x, y, lastX, lastY);
@@ -95,10 +92,12 @@ namespace AdbMouseFaker
 
         private void ClipMouse(int x, int y)
         {
-            _sendEventWrapper.Send(_deviceMouseInput, EV_ABS, ABS_MT_TRACKING_ID, DEFAULT_TRACKING_ID);
+            _sendEventWrapper.Send(_deviceMouseInput, EV_ABS, ABS_MT_TRACKING_ID, _currentTrackingId);
             _sendEventWrapper.Send(_deviceMouseInput, EV_KEY, BTN_TOUCH, 1);
 
             this.MoveMouse(x, y, 0, 0);
+
+            _currentTrackingId++;
         }
 
         private void MoveMouse(int x, int y, int lastX, int lastY)
@@ -117,6 +116,8 @@ namespace AdbMouseFaker
             _sendEventWrapper.Send(_deviceMouseInput, EV_ABS, ABS_MT_TRACKING_ID, RELEASE_TRACKING_ID);
             _sendEventWrapper.Send(_deviceMouseInput, EV_KEY, BTN_TOUCH, 0);
             _sendEventWrapper.Send(_deviceMouseInput, EV_SYN, SYN_REPORT, 0);
+
+            _currentTrackingId--;
         }
     }
 }
