@@ -1,9 +1,8 @@
-﻿namespace AdbMouseFaker
-{
-    public interface IMouseFaker
-    {
-        public bool IsDragging { get; set; }
+﻿namespace AdbMouseFaker;
 
-        public void Click(int x, int y);
-    }
+public interface IMouseFaker
+{
+    public bool IsDragging { get; set; }
+
+    public void Click(int x, int y);
 }

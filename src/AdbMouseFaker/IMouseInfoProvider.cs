@@ -1,7 +1,6 @@
-﻿namespace AdbMouseFaker
+﻿namespace AdbMouseFaker;
+
+public interface IMouseInfoProvider
 {
-    public interface IMouseInfoProvider
-    {
-        public (int X, int Y) GetMousePosition();
-    }
+    public (int X, int Y) GetMousePosition();
 }

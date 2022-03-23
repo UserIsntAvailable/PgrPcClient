@@ -1,5 +1,5 @@
 # PgrPcTool
-Currently WIP
+**Currently WIP**
 
 PgrPcTool is a tool to bring keyboard/mouse to games running to any emulator focus for the game Punishing: Gray Raven.
 
