@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFramework>net5.0</TargetFramework>
+        <TargetFramework>net6.0</TargetFramework>
         <AssemblyVersion>1.0.0</AssemblyVersion>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
@@ -11,6 +11,7 @@
         <ProjectReference Include="..\AdbMouseFaker\AdbMouseFaker.csproj" />
         <ProjectReference Include="..\Win32Api\Win32Api.csproj" />
         <ProjectReference Include="..\WindowsAppOverlay\WindowsAppOverlay.csproj" />
+        <ProjectReference Include="..\..\SharpAdbSender\AdbSender\AdbSender.csproj" />
     </ItemGroup>
 
     <ItemGroup>
