@@ -1,4 +1,5 @@
-﻿using AdbMouseFaker;
+﻿using System.Runtime.CompilerServices;
+using AdbMouseFaker;
 using WindowsAppOverlay;
 using static Win32Api.Message;
 using static Win32Api.Window;
@@ -26,7 +27,7 @@ namespace PgrPcClient
         private readonly int _screenWidth = GetSystemMetrics(0);
         private readonly int _screenHeight = GetSystemMetrics(1);
 
-        private bool _isMouseFakerDragging;
+        private bool _mouseFakerIsDragging;
 
         public HandleMessageMapper(
             IMessageHandler messageHandler,
@@ -35,7 +36,7 @@ namespace PgrPcClient
         {
             _messageFaker = messageFaker;
             _mouseFaker = mouseFaker;
-            _isMouseFakerDragging = _mouseFaker.IsDragging;
+            _mouseFakerIsDragging = _mouseFaker.IsDragging;
 
             // TODO - Map the helper window ( Removing it for now, until I refactor it )
             messageHandler.Map(WM.DESTROY, this.OnDestroy);
@@ -70,10 +71,10 @@ namespace PgrPcClient
                 // TODO - Set CameraMode to true automatically when entering a stage
                 case'R':
                 {
-                    ShowCursor(_isMouseFakerDragging);
+                    ShowCursor(_mouseFakerIsDragging);
                     SetCursorPos(_screenWidth / 2, _screenHeight / 2);
-                    _isMouseFakerDragging = !_isMouseFakerDragging;
-                    _mouseFaker.IsDragging = _isMouseFakerDragging;
+                    _mouseFakerIsDragging = !_mouseFakerIsDragging;
+                    _mouseFaker.IsDragging = _mouseFakerIsDragging;
 
                     return 0;
                 }
@@ -84,18 +85,18 @@ namespace PgrPcClient
 
         internal nint OnMouseMove(nint hWnd, nint wParam, nint lParam)
         {
-            const int padding = 1;
+            const int PADDING = 1;
 
             var xPos = GET_X_LPARAM((int)lParam);
             var yPos = GET_Y_LPARAM((int)lParam);
 
-            if(xPos == _screenWidth - padding)
+            if(xPos == _screenWidth - PADDING)
             {
-                SetCursorPos(padding, yPos);
+                SetCursorPos(PADDING, yPos);
             }
             else if(xPos == 0)
             {
-                SetCursorPos(_screenWidth - padding - 1, yPos);
+                SetCursorPos(_screenWidth - PADDING - 1, yPos);
             }
 
             return 0;
@@ -103,9 +104,9 @@ namespace PgrPcClient
 
         internal nint OnLMButtonDown(nint hWnd, nint wParam, nint lParam)
         {
-            if(!_isMouseFakerDragging)
+            if(!_mouseFakerIsDragging)
             {
-                _mouseFaker.IsDragging = !_isMouseFakerDragging;
+                _mouseFaker.IsDragging = !_mouseFakerIsDragging;
 
                 return 0;
             }
@@ -115,9 +116,9 @@ namespace PgrPcClient
 
         internal nint OnLMButtonUp(nint hWnd, nint wParam, nint lParam)
         {
-            if(!_isMouseFakerDragging)
+            if(!_mouseFakerIsDragging)
             {
-                _mouseFaker.IsDragging = _isMouseFakerDragging;
+                _mouseFaker.IsDragging = _mouseFakerIsDragging;
                 
                 return 0;
             }
@@ -131,19 +132,11 @@ namespace PgrPcClient
         internal nint OnRMButtonUp(nint hWnd, nint wParam, nint lParam) =>
             _messageFaker.VirtualKeyMessage((int)VK.RBUTTON, false);
 
-        internal nint OnXMButtonDown(nint hWnd, nint wParam, nint lParam)
-        {
-            var vK = GetXButtonVirtualKey(wParam);
+        internal nint OnXMButtonDown(nint hWnd, nint wParam, nint lParam) =>
+            _messageFaker.VirtualKeyMessage(GetXButtonVirtualKey(wParam), true);
 
-            return _messageFaker.VirtualKeyMessage(vK, true);
-        }
-
-        internal nint OnXMButtonUp(nint hWnd, nint wParam, nint lParam)
-        {
-            var vK = GetXButtonVirtualKey(wParam);
-
-            return _messageFaker.VirtualKeyMessage(vK, false);
-        }
+        internal nint OnXMButtonUp(nint hWnd, nint wParam, nint lParam) =>
+            _messageFaker.VirtualKeyMessage(GetXButtonVirtualKey(wParam), false);
 
         internal nint OnMouseWheel(nint hWnd, nint wParam, nint lParam)
         {
@@ -161,6 +154,7 @@ namespace PgrPcClient
         #endregion
 
         #region Helper Methods
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static int GetXButtonVirtualKey(nint wParam) => (int)VK.MBUTTON + HIWORD(wParam);
         #endregion
     }

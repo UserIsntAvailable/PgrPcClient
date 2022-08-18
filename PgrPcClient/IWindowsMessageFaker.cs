@@ -1,5 +1,4 @@
 ﻿using System;
-using static Win32Api.Message;
 
 namespace PgrPcClient
 {

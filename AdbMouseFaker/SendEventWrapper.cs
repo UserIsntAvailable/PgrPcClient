@@ -1,24 +1,22 @@
 ﻿using System.Net;
 using SharpAdbClient;
-using SharpAdbClient.DeviceCommands;
 
 namespace AdbMouseFaker
 {
     public class SendEventWrapper : ISendEventWrapper
     {
-        private readonly IAdbClient _client;
+        private readonly AdbClient _client;
         private readonly DeviceData _device;
-        private readonly InfoReceiver _outputReceiver = new();
 
-        public SendEventWrapper(IAdbClient client, string deviceName, DnsEndPoint endPoint)
+        public SendEventWrapper(AdbClient client, DnsEndPoint endPoint)
         {
             _client = client;
-            _device = _client.ConnectToDevice(deviceName, endPoint);
+            _device = _client.ConnectToDevice($"{endPoint.Host}:{endPoint.Port}", endPoint);
         }
 
         public void Send(string deviceSource, int type, int code, int value)
         {
-            _client.ExecuteRemoteCommand($"sendevent {deviceSource} {type} {code} {value}", _device, _outputReceiver);
+            _client.ExecuteRemoteCommand($"sendevent {deviceSource} {type} {code} {value}", _device, null);
         }
     }
 }

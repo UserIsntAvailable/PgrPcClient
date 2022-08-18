@@ -1,9 +1,3 @@
-using System.Linq;
-using AutoFixture;
-using FluentAssertions;
-using Xunit;
-using static Win32Api.Message;
-
 #if WINDOWS
 namespace PgrPcClient.Unit.Tests
 {

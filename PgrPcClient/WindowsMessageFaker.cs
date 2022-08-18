@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using static Win32Api.Message;
 using static Win32Api.Keyboard;
 
@@ -32,7 +33,7 @@ namespace PgrPcClient
 
         public nint VirtualKeyMessage(nint vK, bool isKeyDown)
         {
-            var vM = isKeyDown ? WM.KEYDOWN : WM.KEYUP;
+            var wM = isKeyDown ? WM.KEYDOWN : WM.KEYUP;
 
             if(!_binds.TryGetValue(vK, out var value)) return 0;
 
@@ -40,16 +41,17 @@ namespace PgrPcClient
 
             var newLParam = FakeKeyLParam(scanCode, isKeyDown);
 
-            return this.MessageSender(_appHWnd, (uint) vM, value, newLParam);
-
+            return this.MessageSender(_appHWnd, (uint) wM, value, newLParam);
+            
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             static nint FakeKeyLParam(nint scanCode, bool isKeyDown)
             {
-                const int repeat = 1;
+                const int REPEAT = 1;
 
                 var scancode = (int) scanCode << 16;
                 var downOrUpFlag = isKeyDown ? 0 : 3 << 30;
 
-                return repeat + scancode + downOrUpFlag;
+                return REPEAT + scancode + downOrUpFlag;
             }
         }
     }

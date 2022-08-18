@@ -36,16 +36,16 @@ namespace WindowsAppOverlay
 
         private bool CreateWindow(string className)
         {
-            const int useDefault = 250;
+            const int USE_DEFAULT = 250;
             _hWnd = CreateWindowExW(
                 0x00080000,
                 className,
                 null,
                 (uint)(WS.VISIBLE | WS.MAXIMIZE | WS.POPUP),
-                useDefault,
-                useDefault,
-                useDefault,
-                useDefault,
+                USE_DEFAULT,
+                USE_DEFAULT,
+                USE_DEFAULT,
+                USE_DEFAULT,
                 IntPtr.Zero,
                 IntPtr.Zero,
                 IntPtr.Zero,

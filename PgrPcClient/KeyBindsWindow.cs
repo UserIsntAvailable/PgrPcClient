@@ -83,20 +83,18 @@ namespace PgrPcClient
 
             static string GetParentWindowClassName(nint parentHWnd)
             {
-                const int maxLpszClassNameLength = 256;
+                const int MAX_LPSZ_CLASS_NAME_LENGTH = 256;
 
                 var arrayPool = ArrayPool<char>.Shared;
 
-                var sharedArray = arrayPool.Rent(maxLpszClassNameLength);
+                var sharedArray = arrayPool.Rent(MAX_LPSZ_CLASS_NAME_LENGTH);
 
-                if(GetClassName(parentHWnd, sharedArray, maxLpszClassNameLength) == 0)
+                if(GetClassName(parentHWnd, sharedArray, MAX_LPSZ_CLASS_NAME_LENGTH) == 0)
                 {
                     throw new Exception("GetClassName failed.");
                 }
 
-                var lpszClassName = string.Concat(sharedArray)
-                                          // Remove extra NULL characters
-                                          .Replace("\0", "");
+                var lpszClassName = string.Concat(sharedArray).Replace("\0", "");
 
                 arrayPool.Return(sharedArray);
 
