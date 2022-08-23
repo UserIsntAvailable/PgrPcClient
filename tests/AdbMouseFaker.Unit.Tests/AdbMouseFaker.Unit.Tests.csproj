@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net5.0</TargetFramework>
+        <TargetFramework>net6.0</TargetFramework>
 
         <IsPackable>false</IsPackable>
     </PropertyGroup>
@@ -22,6 +22,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\src\AdbMouseFaker\AdbMouseFaker.csproj" />
       <ProjectReference Include="..\AdbMouseFaker\AdbMouseFaker.csproj" />
     </ItemGroup>
 
