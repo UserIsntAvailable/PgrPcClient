@@ -1,131 +1,129 @@
-﻿using System;
-using System.Threading;
+using AdbSender;
+using AdbSender.Models;
 
 namespace AdbMouseFaker;
 
 public class MouseFaker : IMouseFaker
 {
-    private const int EV_SYN = 0x00,
-                      EV_KEY = 0x01,
-                      EV_ABS = 0x03,
-                      SYN_REPORT = 0x00,
-                      BTN_TOUCH = 0x14A,
-                      ABS_MT_POSITION_X = 0x35,
-                      ABS_MT_POSITION_Y = 0x36,
-                      ABS_MT_TRACKING_ID = 0x39,
-                      DEFAULT_TRACKING_ID = 1,
-                      RELEASE_TRACKING_ID = -1;
+    private readonly IAdbClient _adbClient;
+    // TODO: Do I want to provide a way to get the /dev/input's automatically? ( getevent -i could help )
+    private readonly string _mouseInputDevice;
 
-    private readonly IMouseInfoProvider _mouseInfoProvider;
-    private readonly ISendEventWrapper _sendEventWrapper;
-    private readonly string _deviceMouseInput;
-    private readonly ManualResetEvent _suspendEvent = new(false);
+    private int _currentMtSlot = 0;
 
-    private bool _isDragging;
-
-    public MouseFaker(
-        ISendEventWrapper sendEventWrapper,
-        IMouseInfoProvider mouseInfoProvider,
-        string deviceMouseInput)
+    public MouseFaker(IAdbClient adbClient, string mouseInputDevice)
     {
-        _sendEventWrapper = sendEventWrapper;
-        _mouseInfoProvider = mouseInfoProvider;
-        _deviceMouseInput = deviceMouseInput;
-
-        this.CreateDraggingModeThread();
+        _adbClient = adbClient;
+        _mouseInputDevice = mouseInputDevice;
     }
 
-    /* BUG - IsDragging releases the mouse cursor before the cursor is in the last position.
-     *       That breaks the cursor and the cursor never releases.
-     */
-    public bool IsDragging
+    ~MouseFaker() => this.Dispose(false);
+
+    public Tap Tap(int x, int y)
     {
-        get => _isDragging;
-        set
+        if(++_currentMtSlot != 1)
         {
-            if(value)
-            {
-                if(!_isDragging)
-                {
-                    var (x, y) = _mouseInfoProvider.GetMousePosition();
+            this.Send_ABS_MT_SLOT(_currentMtSlot);
+            // FIX: Not sure if it does matter sending MT_SLOT 1 at the start.
+        }
 
-                    this.ClipMouse(x, y);
-                    _suspendEvent.Set();
-                }
-            }
-            else
-            {
-                if(_isDragging)
-                {
-                    _suspendEvent.Reset();
-                    this.ReleaseMouse();
-                }
-            }
+        this.Send_ABS_MT_TRACKING_ID(_currentMtSlot);
+        this.Send_EV_KEY(_mouseInputDevice, BTN_TOUCH, keyDown: true);
 
-            _isDragging = value;
+        Tap to = new(_currentMtSlot, x, y);
+        Tap from = new(-1, to.X - 1, to.Y - 1); // I can't really know the values of the previous last tap.
+        this.Send_ABS_MT_POSITION(in from, in to);
+
+        return to;
+    }
+
+    public void TapMove(in Tap from, in Tap to)
+    {
+        this.ChangeSlot(in from);
+        this.Send_ABS_MT_POSITION(in from, in to);
+    }
+
+    public void TapRelease(in Tap tap)
+    {
+        this.ChangeSlot(in tap);
+        this.Send_ABS_MT_TRACKING_ID(-1);
+        this.Send_EV_KEY(_mouseInputDevice, BTN_TOUCH, keyDown: false);
+        this.Send_SYN_REPORT(_mouseInputDevice);
+
+        _currentMtSlot--;
+    }
+
+    public void Dispose()
+    {
+        this.Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if(disposing)
+        {
+        }
+
+        while(_currentMtSlot != 0)
+        {
+            var tap = new Tap(_currentMtSlot, default, default);
+            this.TapRelease(in tap);
         }
     }
 
-    public void Click(int x, int y)
+    private void Send_ABS_MT_SLOT(int slot)
     {
-        if(_isDragging)
-            throw new InvalidOperationException($"You can not send a click event while {this.IsDragging} is true.");
-
-        this.ClipMouse(x, y);
-        this.ReleaseMouse();
+        InputEvent mtSlot = new((int)EV_ABS, (int)ABS_MT_SLOT, slot);
+        _adbClient.ExecuteSendEvent(_mouseInputDevice, in mtSlot);
     }
 
-    private void CreateDraggingModeThread()
+    private void Send_ABS_MT_TRACKING_ID(int id)
     {
-        new Thread(
-            () =>
-            {
-                int lastX = 0,
-                    lastY = 0;
-
-                // I will just let the Process to destroy the Thread.
-                while(true)
-                {
-                    _suspendEvent.WaitOne(Timeout.Infinite);
-                    
-                    var (x, y) = _mouseInfoProvider.GetMousePosition();
-
-                    this.MoveMouse(x, y, lastX, lastY);
-
-                    lastX = x;
-                    lastY = y;
-                }
-                // ReSharper disable once FunctionNeverReturns
-            }
-        )
-        {
-            IsBackground = true, Name = "DraggingModeThread",
-        }.Start();
+        InputEvent mtTrackingId = new((int)EV_ABS, (int)ABS_MT_TRACKING_ID, id);
+        _adbClient.ExecuteSendEvent(_mouseInputDevice, in mtTrackingId);
     }
 
-    private void ClipMouse(int x, int y)
+    private void Send_EV_KEY(ReadOnlySpan<char> input, KeyButton keyCode, bool keyDown)
     {
-        _sendEventWrapper.Send(_deviceMouseInput, EV_ABS, ABS_MT_TRACKING_ID, DEFAULT_TRACKING_ID);
-        _sendEventWrapper.Send(_deviceMouseInput, EV_KEY, BTN_TOUCH, 1);
-
-        this.MoveMouse(x, y, 0, 0);
+        InputEvent evKey = new((int)EV_KEY, (int)keyCode, keyDown ? 1 : 0);
+        _adbClient.ExecuteSendEvent(input, in evKey);
     }
 
-    private void MoveMouse(int x, int y, int lastX, int lastY)
+    private void Send_ABS_MT_POSITION(in Tap from, in Tap to)
     {
+        var (_, lastX, lastY) = from; var (_, x, y) = to;
+
         if(x == lastX && y == lastY) return;
 
-        if(x != lastX) _sendEventWrapper.Send(_deviceMouseInput, EV_ABS, ABS_MT_POSITION_X, x);
+        if(x != lastX)
+        {
+            InputEvent xEvent = new((int)EV_ABS, (int)ABS_MT_POSITION_X, x);
+            _adbClient.ExecuteSendEvent(_mouseInputDevice, xEvent);
+        }
 
-        if(y != lastY) _sendEventWrapper.Send(_deviceMouseInput, EV_ABS, ABS_MT_POSITION_Y, y);
+        if(y != lastY)
+        {
+            InputEvent yEvent = new((int)EV_ABS, (int)ABS_MT_POSITION_Y, y);
+            _adbClient.ExecuteSendEvent(_mouseInputDevice, yEvent);
+        }
 
-        _sendEventWrapper.Send(_deviceMouseInput, EV_SYN, SYN_REPORT, 0);
+        this.Send_SYN_REPORT(_mouseInputDevice);
     }
 
-    private void ReleaseMouse()
+    private void Send_SYN_REPORT(ReadOnlySpan<char> input)
     {
-        _sendEventWrapper.Send(_deviceMouseInput, EV_ABS, ABS_MT_TRACKING_ID, RELEASE_TRACKING_ID);
-        _sendEventWrapper.Send(_deviceMouseInput, EV_KEY, BTN_TOUCH, 0);
-        _sendEventWrapper.Send(_deviceMouseInput, EV_SYN, SYN_REPORT, 0);
+        InputEvent synReport = new((int)EV_SYN, (int)SYN_REPORT, 0);
+        _adbClient.ExecuteSendEvent(input, in synReport);
+    }
+
+    private void ChangeSlot(in Tap tap)
+    {
+        var id = tap.Id;
+
+        if(_currentMtSlot != id)
+        {
+            this.Send_ABS_MT_SLOT(id);
+        }
     }
 }

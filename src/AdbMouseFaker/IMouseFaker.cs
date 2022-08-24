@@ -1,8 +1,10 @@
 ﻿namespace AdbMouseFaker;
 
-public interface IMouseFaker
+public interface IMouseFaker : IDisposable
 {
-    public bool IsDragging { get; set; }
+    public Tap Tap(int x, int y);
 
-    public void Click(int x, int y);
+    public void TapMove(in Tap from, in Tap to);
+
+    public void TapRelease(in Tap tap);
 }
